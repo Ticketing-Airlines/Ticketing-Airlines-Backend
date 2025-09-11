@@ -1,4 +1,6 @@
-﻿namespace Airline_Ticketing.Model
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Airline_Ticketing.Model
 {
     public class UserModel
     {
@@ -7,6 +9,8 @@
 
         public string Name { get; set; }
 
+
+        [EmailAddress]
         public string Email { get; set; }
 
         public  string Password { get; set; }
