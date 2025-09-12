@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
 
 namespace Airline_Ticketing.Model
 {
@@ -10,7 +10,7 @@ namespace Airline_Ticketing.Model
         public string Name { get; set; }
 
 
-        [EmailAddress]
+        
         public string Email { get; set; }
 
         public  string Password { get; set; }
