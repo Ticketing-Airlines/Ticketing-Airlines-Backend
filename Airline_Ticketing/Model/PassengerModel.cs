@@ -14,7 +14,7 @@ namespace Airline_Ticketing.Model
          
         public String Email { get; set; }
 
-        public int PassPortNumber { get; set; }
+        public String PassPortNumber { get; set; }
 
     }
 }
