@@ -7,14 +7,14 @@ namespace Airline_Ticketing.Model
 
         public int UserID { get; set; }
 
-        public String FirstName { get; set; }
+        public String Name { get; set; }
 
-        public String LastName { get; set; }
 
-         
-        public String Email { get; set; }
+        public DateOnly DateOfBirth { get; set; }
 
-        public String PassPortNumber { get; set; }
+        public String? PassportNumber { get; set; }
+
+        public String? Nationality { get; set; }
 
     }
 }
