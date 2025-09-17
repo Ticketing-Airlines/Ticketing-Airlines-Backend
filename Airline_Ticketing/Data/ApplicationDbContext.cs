@@ -35,7 +35,9 @@ namespace Airline_Ticketing.Data
 
         public DbSet<FlightSeatModel> FlightSeats { get; set; }
 
+        public DbSet<MessagesModel> Message { get; set; }
 
+        public DbSet<ChatsModel> Chats { get; set; }
 
 
 
