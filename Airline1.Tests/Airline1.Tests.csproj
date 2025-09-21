@@ -30,8 +30,4 @@
     <ProjectReference Include="..\Airline1\Airline1.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="Services\AirportServiceTests.cs" />
-  </ItemGroup>
-
 </Project>
