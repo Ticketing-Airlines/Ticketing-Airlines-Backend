@@ -10,34 +10,34 @@ namespace Airline_Ticketing.Data
         {
         }
 
-        public DbSet<UserModel> Users { get; set; }
-        public DbSet<FlightModel> Flights { get; set; }
-        public DbSet<BookingModel> Bookings { get; set; }
-        public DbSet<PassengerModel> Passengers { get; set; }
+        public DbSet<Users> Users { get; set; }
+        public DbSet<Flights> Flights { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
+        public DbSet<Passengers> Passengers { get; set; }
 
-        public DbSet<AdminModel> Admins { get; set; }
+        public DbSet<Admin> Admins { get; set; }
 
-        public DbSet<BookingPassengerModel> BookingPassengers { get; set; }
+        public DbSet<BookingPassengers> BookingPassengers { get; set; }
 
-       public DbSet<AircraftModel> Aircrafts { get; set; }
+       public DbSet<Aircraft> Aircrafts { get; set; }
 
-        public DbSet<AirportModel> Airports { get; set; }
+        public DbSet<Airport> Airports { get; set; }
 
-        public DbSet<PaymentModel> Payments { get; set; }
+        public DbSet<Payments> Payments { get; set; }
 
-        public DbSet<TicketsModel> Tickets { get; set; }
+        public DbSet<Tickets> Tickets { get; set; }
 
-        public DbSet<SeatLayoutModel> SeatLayouts { get; set; }
+        public DbSet<SeatLayout> SeatLayouts { get; set; }
 
-        public DbSet<AirlineModel> Airlines { get; set; }
+        public DbSet<Airline> Airlines { get; set; }
 
-        public DbSet<FlightPricesModel> FlightPrices { get; set; }
+        public DbSet<FlightPrices> FlightPrices { get; set; }
 
-        public DbSet<FlightSeatModel> FlightSeats { get; set; }
+        public DbSet<FlightSeat> FlightSeats { get; set; }
 
-        public DbSet<MessagesModel> Message { get; set; }
+        public DbSet<Messages> Message { get; set; }
 
-        public DbSet<ChatsModel> Chats { get; set; }
+        public DbSet<Chats> Chats { get; set; }
 
 
 
