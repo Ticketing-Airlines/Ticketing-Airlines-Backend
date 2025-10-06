@@ -37,10 +37,29 @@ namespace Airline1.Tests.Controllers
             [Fact]
             public async Task GetAll_ReturnsOkResult_WithListOfAirports()
             {
-                var airports = AirportTestData.AirportList;
+                var airports = new List<AirportResponse> {
+                    new AirportResponse {
+                        Id = 1,
+                        IataCode = "iata1",
+                        IcaoCode = "icao1",
+                        Name = "Airport1",
+                        City = "City1",
+                        Country = "Country1",
+                        TimeZone = "TZ1"
+                    },
+                    new AirportResponse {
+                        Id = 2,
+                        IataCode = "iata2",
+                        IcaoCode = "icao2",
+                        Name = "Airport2",
+                        City = "City2",
+                        Country = "Country2",
+                        TimeZone = "TZ2"
+                    }
+                };
                 _mockService.Setup(s => s.GetAllAsync()).ReturnsAsync(airports);
                 var result = await _controller.GetAll();
-                var okResult = Assert.IsType<OkObjectResult>(result);
+                var okResult = Assert.IsType<OkObjectResult>(result.Result);
                 var returnValue = Assert.IsType<List<AirportResponse>>(okResult.Value);
                 Assert.Equal(2, returnValue.Count);
             }
@@ -48,10 +67,18 @@ namespace Airline1.Tests.Controllers
             [Fact]
             public async Task GetById_ReturnsOkResult_WhenAirportExists()
             {
-                var airport = AirportTestData.AirportList[0];
+                var airport = new AirportResponse {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                };
                 _mockService.Setup(s => s.GetByIdAsync(1)).ReturnsAsync(airport);
                 var result = await _controller.GetById(1);
-                var okResult = Assert.IsType<OkObjectResult>(result);
+                var okResult = Assert.IsType<OkObjectResult>(result.Result);
                 var returnValue = Assert.IsType<AirportResponse>(okResult.Value);
                 Assert.Equal(1, returnValue.Id);
             }
@@ -59,26 +86,51 @@ namespace Airline1.Tests.Controllers
             [Fact]
             public async Task GetById_ReturnsNotFound_WhenAirportDoesNotExist()
             {
-                _mockService.Setup(s => s.GetByIdAsync(99)).ReturnsAsync((AirportResponse)null);
+                _mockService.Setup(s => s.GetByIdAsync(99)).ReturnsAsync((AirportResponse?)null);
                 var result = await _controller.GetById(99);
-                Assert.IsType<NotFoundResult>(result);
+                Assert.IsType<NotFoundResult>(result.Result);
             }
 
             [Fact]
             public async Task Update_ReturnsNoContent_WhenUpdateIsSuccessful()
             {
-                var request = AirportTestData.ValidUpdateRequest;
-                _mockService.Setup(s => s.UpdateAsync(request)).ReturnsAsync(true);
-                var result = await _controller.Update(request);
-                Assert.IsType<NoContentResult>(result);
+                var request = new UpdateAirportRequest {
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Updated Airport",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                };
+                var updatedResponse = new AirportResponse {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Updated Airport",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                };
+                _mockService.Setup(s => s.UpdateAsync(1, request)).ReturnsAsync(updatedResponse);
+                var result = await _controller.Update(1, request);
+                var okResult = Assert.IsType<OkObjectResult>(result);
+                var returnValue = Assert.IsType<AirportResponse>(okResult.Value);
+                Assert.Equal("Updated Airport", returnValue.Name);
             }
 
             [Fact]
             public async Task Update_ReturnsNotFound_WhenAirportDoesNotExist()
             {
-                var request = AirportTestData.InvalidUpdateRequest;
-                _mockService.Setup(s => s.UpdateAsync(request)).ReturnsAsync(false);
-                var result = await _controller.Update(request);
+                var request = new UpdateAirportRequest {
+                    IataCode = "iata99",
+                    IcaoCode = "icao99",
+                    Name = "Nonexistent",
+                    City = "City99",
+                    Country = "Country99",
+                    TimeZone = "TZ99"
+                };
+                _mockService.Setup(s => s.UpdateAsync(99, request)).ReturnsAsync((AirportResponse?)null);
+                var result = await _controller.Update(99, request);
                 Assert.IsType<NotFoundResult>(result);
             }
 

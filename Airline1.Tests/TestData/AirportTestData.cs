@@ -29,20 +29,44 @@ namespace Airline1.Tests.TestData
 
         public static List<AirportResponse> AirportList => new List<AirportResponse>
         {
-            new AirportResponse { Id = 1, Name = "Airport1" },
-            new AirportResponse { Id = 2, Name = "Airport2" }
+            new AirportResponse {
+                Id = 1,
+                IataCode = "iata1",
+                IcaoCode = "icao1",
+                Name = "Airport1",
+                City = "City1",
+                Country = "Country1",
+                TimeZone = "TZ1"
+            },
+            new AirportResponse {
+                Id = 2,
+                IataCode = "iata2",
+                IcaoCode = "icao2",
+                Name = "Airport2",
+                City = "City2",
+                Country = "Country2",
+                TimeZone = "TZ2"
+            }
         };
 
         public static UpdateAirportRequest ValidUpdateRequest => new UpdateAirportRequest
         {
-            Id = 1,
-            Name = "Updated Airport"
+            IataCode = "iata1",
+            IcaoCode = "icao1",
+            Name = "Updated Airport",
+            City = "City1",
+            Country = "Country1",
+            TimeZone = "TZ1"
         };
 
         public static UpdateAirportRequest InvalidUpdateRequest => new UpdateAirportRequest
         {
-            Id = 99,
-            Name = "Nonexistent"
+            IataCode = "iata99",
+            IcaoCode = "icao99",
+            Name = "Nonexistent",
+            City = "City99",
+            Country = "Country99",
+            TimeZone = "TZ99"
         };
     }
 }
