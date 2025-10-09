@@ -5,7 +5,7 @@ namespace Airline_Ticketing.Model
     {
         public int PassengerID { get; set; }
 
-        public int UserID { get; set; }
+        public int? UserID { get; set; }
 
         public String Name { get; set; }
 
