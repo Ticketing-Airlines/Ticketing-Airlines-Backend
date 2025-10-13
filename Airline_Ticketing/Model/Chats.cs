@@ -1,7 +1,10 @@
-﻿namespace Airline_Ticketing.Model
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Airline_Ticketing.Model
 {
     public class Chats
     {
+        [Key]
         public int ChatID { get; set; }
 
         public int?  UserID { get; set; }

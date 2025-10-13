@@ -1,8 +1,11 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
+
 namespace Airline_Ticketing.Model
 {
     public class Passengers
     {
+        [Key]
         public int PassengerID { get; set; }
 
         public int? UserID { get; set; }

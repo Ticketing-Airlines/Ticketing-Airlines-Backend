@@ -1,7 +1,10 @@
-﻿namespace Airline_Ticketing.Model
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Airline_Ticketing.Model
 {
     public class Admin
     {
+        [Key]
         public int AdminID { get; set; }
 
         public string Name { get; set; }

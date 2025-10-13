@@ -1,7 +1,10 @@
-﻿namespace Airline_Ticketing.Model
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Airline_Ticketing.Model
 {
     public class SeatLayout
     {
+        [Key]
         public int LayoutID { get; set; }
 
         public int SeatNumber { get; set; }

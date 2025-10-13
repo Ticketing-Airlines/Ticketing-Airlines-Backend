@@ -1,9 +1,13 @@
-﻿namespace Airline_Ticketing.Model
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Airline_Ticketing.Model
 {
     public class Tickets
     {
+
         public int BookingID { get; set; }
 
+        [Key]
         public int TicketID { get; set; }
 
         public int BPID { get; set; }

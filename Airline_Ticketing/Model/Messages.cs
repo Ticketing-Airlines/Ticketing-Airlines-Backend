@@ -1,4 +1,5 @@
 ﻿using Airline_Ticketing.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace Airline_Ticketing.Model
 
@@ -6,7 +7,7 @@ namespace Airline_Ticketing.Model
 {
     public class Messages
     {
-
+        [Key]
         public int MessageID { get; set; }
 
         public int ChatID { get; set; }

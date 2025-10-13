@@ -1,10 +1,13 @@
 ﻿
 
+using System.ComponentModel.DataAnnotations;
+
 namespace Airline_Ticketing.Model
 {
     public class Users
     {
 
+        [Key]
         public int UserID { get; set; }
 
         public string Name { get; set; }

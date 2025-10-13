@@ -1,12 +1,16 @@
-﻿namespace Airline_Ticketing.Model
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Airline_Ticketing.Model
 {
     public class Payments
     {
-
+        [Key]
         public int PaymentID { get; set; }
 
         public int BookingID { get; set; }
 
+        [Column(TypeName = "decimal(18, 2)")]
         public decimal Amount { get; set; }
 
         public string  PaymentMethod { get; set; }
