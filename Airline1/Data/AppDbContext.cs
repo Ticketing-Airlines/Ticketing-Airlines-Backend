@@ -10,8 +10,8 @@ namespace Airline1.Data
 
         public DbSet<Airport> Airports { get; set; }
         public DbSet<Aircraft> Aircrafts { get; set; }
-
         public DbSet<FlightRoute> FlightRoutes { get; set; }
+        public DbSet<User> Users { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // small sanity constraints
@@ -49,6 +49,15 @@ namespace Airline1.Data
                 .WithMany()
                 .HasForeignKey(r => r.DestinationAirportId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            //  User 
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.PhoneNumber)
+                .IsUnique();
 
             base.OnModelCreating(modelBuilder);
         }

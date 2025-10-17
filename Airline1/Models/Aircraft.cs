@@ -11,7 +11,7 @@ namespace Airline1.Models
         public int Id { get; set; }
 
         // e.g. "RP-C1234" or tail number. Should be unique.
-        [Required, MaxLength(50)]
+        [MaxLength(50)]
         public required string TailNumber { get; set; }
 
         [MaxLength(100)]

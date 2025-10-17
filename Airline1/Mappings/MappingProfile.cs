@@ -29,6 +29,12 @@ namespace Airline1.Mappings
             CreateMap<FlightRoute, FlightRouteResponse>()
                 .ForMember(dest => dest.OriginAirportName, opt => opt.MapFrom(src => src.OriginAirport != null ? src.OriginAirport.Name : null))
                 .ForMember(dest => dest.DestinationAirportName, opt => opt.MapFrom(src => src.DestinationAirport != null ? src.DestinationAirport.Name : null));
+
+            // Users
+            CreateMap<CreateUserRequest, User>();
+            CreateMap<UpdateUserRequest, User>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<User, UserResponse>();
         }
     }
 }

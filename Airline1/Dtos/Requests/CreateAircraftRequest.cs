@@ -5,7 +5,7 @@ namespace Airline1.Dtos.Requests
 {
     public class CreateAircraftRequest
     {
-        [Required, MaxLength(50)]
+        [MaxLength(50)]
         public required string TailNumber { get; set; }
 
         [MaxLength(100)]
