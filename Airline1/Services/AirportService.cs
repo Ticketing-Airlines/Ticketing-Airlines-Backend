@@ -1,26 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Airline1.Dtos.Requests;
+﻿using Airline1.Dtos.Requests;
 using Airline1.Dtos.Responses;
+using Airline1.IRepositories;
+using Airline1.IService;
 using Airline1.Models;
-using Airline1.Repositories.Interfaces;
-using Airline1.Services.Interfaces;
 using AutoMapper;
 
-namespace Airline1.Services.Implementations
+namespace Airline1.Services
 {
-    public class AirportService : IAirportService
+    public class AirportService(IAirportRepository repo, IMapper mapper) : IAirportService
     {
-        private readonly IAirportRepository _repo;
-        private readonly IMapper _mapper;
-
-        public AirportService(IAirportRepository repo, IMapper mapper)
-        {
-            _repo = repo;
-            _mapper = mapper;
-        }
+        private readonly IAirportRepository _repo = repo;
+        private readonly IMapper _mapper = mapper;
 
         public async Task<AirportResponse> CreateAsync(CreateAirportRequest request)
         {
@@ -33,7 +23,7 @@ namespace Airline1.Services.Implementations
         public async Task<List<AirportResponse>> GetAllAsync()
         {
             var items = await _repo.GetAllAsync();
-            return items.Select(i => _mapper.Map<AirportResponse>(i)).ToList();
+            return [.. items.Select(i => _mapper.Map<AirportResponse>(i))];
         }
 
         public async Task<AirportResponse?> GetByIdAsync(int id)

@@ -1,37 +1,31 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Airline1.Models;
-using Airline1.Repositories.Interfaces;
+﻿using Airline1.Models;
 using Airline1.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
+using Airline1.IRepositories;
 
-namespace Airline1.Repositories.Implementations
+namespace Airline1.Repositories
 {
-    public class FlightRouteRepository : IFlightRouteRepository
+    public class FlightRouteRepository(AppDbContext db) : IFlightRouteRepository
     {
-        private readonly AppDbContext _db;
-        public FlightRouteRepository(AppDbContext db) { _db = db; }
-
         public async Task<FlightRoute> AddAsync(FlightRoute route)
         {
-            _db.FlightRoutes.Add(route);
-            await _db.SaveChangesAsync();
+            db.FlightRoutes.Add(route);
+            await db.SaveChangesAsync();
             return route;
         }
 
         public async Task<List<FlightRoute>> GetAllAsync()
         {
-            return await _db.FlightRoutes
+            return await db.FlightRoutes
                 .Include(r => r.OriginAirport)
                 .Include(r => r.DestinationAirport)
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        public async Task<FlightRoute> GetByIdAsync(int id)
+        public async Task<FlightRoute?> GetByIdAsync(int id)
         {
-            return await _db.FlightRoutes
+            return await db.FlightRoutes
                 .Include(r => r.OriginAirport)
                 .Include(r => r.DestinationAirport)
                 .FirstOrDefaultAsync(r => r.Id == id);
@@ -39,24 +33,24 @@ namespace Airline1.Repositories.Implementations
 
         public async Task UpdateAsync(FlightRoute route)
         {
-            _db.FlightRoutes.Update(route);
-            await _db.SaveChangesAsync();
+            db.FlightRoutes.Update(route);
+            await db.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(FlightRoute route)
         {
-            _db.FlightRoutes.Remove(route);
-            await _db.SaveChangesAsync();
+            db.FlightRoutes.Remove(route);
+            await db.SaveChangesAsync();
         }
 
         public async Task<bool> ExistsAsync(int id)
         {
-            return await _db.FlightRoutes.AnyAsync(r => r.Id == id);
+            return await db.FlightRoutes.AnyAsync(r => r.Id == id);
         }
 
-        public async Task<FlightRoute> GetByOriginDestinationAsync(int originId, int destinationId)
+        public async Task<FlightRoute?> GetByOriginDestinationAsync(int originId, int destinationId)
         {
-            return await _db.FlightRoutes
+            return await db.FlightRoutes
                 .Include(r => r.OriginAirport)
                 .Include(r => r.DestinationAirport)
                 .FirstOrDefaultAsync(r => r.OriginAirportId == originId && r.DestinationAirportId == destinationId);

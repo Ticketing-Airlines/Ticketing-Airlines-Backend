@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Airline1.Services.Interfaces;
 using Airline1.Dtos.Requests;
+using Airline1.IService;
 
 namespace Airline1.Controllers
 {

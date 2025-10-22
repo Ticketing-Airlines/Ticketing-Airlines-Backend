@@ -15,6 +15,8 @@ namespace Airline1.Dtos.Requests
         [MaxLength(100)]
         public required string Model { get; set; }
 
+        public string? Nickname { get; set; }
+
         [MaxLength(100)]
         public required string RegistrationNumber { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿using Airline1.Models;
 
-namespace Airline1.Repositories.Interfaces
+namespace Airline1.IRepositories
 {
     public interface IUserRepository
     {

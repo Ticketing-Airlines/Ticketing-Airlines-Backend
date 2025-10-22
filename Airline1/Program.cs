@@ -1,9 +1,8 @@
 using Airline1.Data;
-using Airline1.Mappings;
-using Airline1.Repositories.Implementations;
-using Airline1.Repositories.Interfaces;
-using Airline1.Services.Implementations;
-using Airline1.Services.Interfaces;
+using Airline1.IRepositories;
+using Airline1.IService;
+using Airline1.Repositories;
+using Airline1.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -100,6 +99,8 @@ builder.Services.AddScoped<IFlightRouteService, FlightRouteService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+builder.Services.AddScoped<IFlightRepository, FlightRepository>();
+builder.Services.AddScoped<IFlightService, FlightService>();
 
 var app = builder.Build();
 
