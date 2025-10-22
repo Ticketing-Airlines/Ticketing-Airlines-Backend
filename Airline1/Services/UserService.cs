@@ -1,20 +1,13 @@
 ﻿using Airline1.Dtos.Requests;
 using Airline1.Dtos.Responses;
+using Airline1.IRepositories;
+using Airline1.IService;
 using Airline1.Models;
-using Airline1.Repositories.Interfaces;
-using Airline1.Services.Interfaces;
 
-namespace Airline1.Services.Implementations
+namespace Airline1.Services
 {
-    public class UserService : IUserService
+    public class UserService(IUserRepository userRepository) : IUserService
     {
-        private readonly IUserRepository _userRepository;
-
-        public UserService(IUserRepository userRepository)
-        {
-            _userRepository = userRepository;
-        }
-
         public async Task<RegisterResponse> RegisterUserAsync(RegisterUserRequest request)
         {
             var user = new User
@@ -29,14 +22,14 @@ namespace Airline1.Services.Implementations
                 Gender = request.Gender
             };
 
-            var created = await _userRepository.AddAsync(user);
+            var created = await userRepository.AddAsync(user);
 
             return new RegisterResponse { Id = created.Id };
         }
 
         public async Task<LoginResponse?> LoginUserAsync(LoginUserRequest request)
         {
-            var user = await _userRepository.GetByEmailAsync(request.Email);
+            var user = await userRepository.GetByEmailAsync(request.Email);
             if (user == null) return null;
 
             bool validPassword = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
@@ -54,7 +47,7 @@ namespace Airline1.Services.Implementations
 
         public async Task<UserResponse?> GetUserByIdAsync(int id)
         {
-            var user = await _userRepository.GetByIdAsync(id);
+            var user = await userRepository.GetByIdAsync(id);
             if (user == null) return null;
 
             return new UserResponse
@@ -72,7 +65,7 @@ namespace Airline1.Services.Implementations
 
         public async Task<IEnumerable<UserResponse>> GetAllUsersAsync()
         {
-            var users = await _userRepository.GetAllAsync();
+            var users = await userRepository.GetAllAsync();
             return users.Select(u => new UserResponse
             {
                 Id = u.Id,
@@ -88,7 +81,7 @@ namespace Airline1.Services.Implementations
 
         public async Task<UserResponse?> UpdateUserAsync(int id, UpdateUserRequest request)
         {
-            var user = await _userRepository.GetByIdAsync(id);
+            var user = await userRepository.GetByIdAsync(id);
             if (user == null) return null;
 
             if (!string.IsNullOrEmpty(request.FirstName)) user.FirstName = request.FirstName;
@@ -99,7 +92,7 @@ namespace Airline1.Services.Implementations
             if (!string.IsNullOrEmpty(request.Gender)) user.Gender = request.Gender;
             user.UpdatedAt = DateTime.UtcNow;
 
-            var updated = await _userRepository.UpdateAsync(user);
+            var updated = await userRepository.UpdateAsync(user);
 
             return new UserResponse
             {
@@ -116,10 +109,10 @@ namespace Airline1.Services.Implementations
 
         public async Task<bool> DeleteUserAsync(int id)
         {
-            var user = await _userRepository.GetByIdAsync(id);
+            var user = await userRepository.GetByIdAsync(id);
             if (user == null) return false;
 
-            await _userRepository.DeleteAsync(user);
+            await userRepository.DeleteAsync(user);
             return true;
         }
     }

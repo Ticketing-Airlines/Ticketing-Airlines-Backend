@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Airline1.Models;
+﻿using Airline1.Models;
 
-namespace Airline1.Repositories.Interfaces
+namespace Airline1.IRepositories
 {
     public interface IAircraftRepository
     {

@@ -30,6 +30,16 @@ namespace Airline1.Mappings
                 .ForMember(dest => dest.OriginAirportName, opt => opt.MapFrom(src => src.OriginAirport != null ? src.OriginAirport.Name : null))
                 .ForMember(dest => dest.DestinationAirportName, opt => opt.MapFrom(src => src.DestinationAirport != null ? src.DestinationAirport.Name : null));
 
+            CreateMap<CreateFlightRequest, Flight>();
+            CreateMap<UpdateFlightRequest, Flight>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<Flight, FlightResponse>()
+                .ForMember(dest => dest.AircraftName, opt => opt.MapFrom(src => src.Aircraft != null ? src.Aircraft.DisplayName : null))
+                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => src.Route != null ? src.Route.OriginAirport.Name : null))
+                .ForMember(dest => dest.Destination, opt => opt.MapFrom(src => src.Route != null ? src.Route.DestinationAirport.Name : null));
+
+
             // Users
             CreateMap<CreateUserRequest, User>();
             CreateMap<UpdateUserRequest, User>()

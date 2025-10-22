@@ -15,6 +15,9 @@ namespace Airline1.Models
         public required string TailNumber { get; set; }
 
         [MaxLength(100)]
+        public string? Nickname { get; set; }
+
+        [MaxLength(100)]
         public required string Manufacturer { get; set; }    // e.g. Airbus, Boeing
 
         [MaxLength(100)]
@@ -24,6 +27,11 @@ namespace Airline1.Models
         public required string RegistrationNumber { get; set; } // official registration
 
         public int SeatingCapacity { get; set; }    // number of seats
+
+        [NotMapped] // Tells Entity Framework to ignore this property in the database schema.
+        public string DisplayName => string.IsNullOrEmpty(Nickname)
+            ? $"{Manufacturer} {Model}"  // Simplified expression
+            : Nickname;
 
         public DateTime? FirstFlightDate { get; set; }
 

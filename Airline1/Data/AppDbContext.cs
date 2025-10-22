@@ -3,14 +3,12 @@ using Airline1.Models;
 
 namespace Airline1.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options)
-            : base(options) { }
-
         public DbSet<Airport> Airports { get; set; }
         public DbSet<Aircraft> Aircrafts { get; set; }
         public DbSet<FlightRoute> FlightRoutes { get; set; }
+        public DbSet<Flight> Flights { get; set; }
         public DbSet<User> Users { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,6 +46,28 @@ namespace Airline1.Data
                 .HasOne(r => r.DestinationAirport)
                 .WithMany()
                 .HasForeignKey(r => r.DestinationAirportId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Flight relationships
+            modelBuilder.Entity<Flight>()
+                .Property(f => f.Price)
+                .HasPrecision(18, 4);
+        
+
+            modelBuilder.Entity<Flight>()
+                .HasIndex(f => f.FlightNumber)
+                .IsUnique();
+
+            modelBuilder.Entity<Flight>()
+                .HasOne(f => f.Aircraft)
+                .WithMany()
+                .HasForeignKey(f => f.AircraftId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Flight>()
+                .HasOne(f => f.Route)
+                .WithMany()
+                .HasForeignKey(f => f.RouteId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //  User 
