@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Airline1.Dtos.Requests;
+﻿using Airline1.Dtos.Requests;
 using Airline1.Dtos.Responses;
 
 namespace Airline1.IService
