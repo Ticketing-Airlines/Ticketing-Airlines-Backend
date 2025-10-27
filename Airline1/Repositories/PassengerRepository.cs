@@ -32,6 +32,11 @@ namespace Airline1.Repositories
             return passenger;
         }
 
+        public async Task<int> SaveChangesAsync()
+        {
+            return await context.SaveChangesAsync();
+        }
+
         public async Task<bool> DeleteAsync(int id)
         {
             var passenger = await context.Passengers.FindAsync(id);

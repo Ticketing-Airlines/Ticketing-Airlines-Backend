@@ -7,6 +7,7 @@ namespace Airline1.IRepositories
         Task<IEnumerable<Passenger>> GetAllAsync();
         Task<Passenger?> GetByIdAsync(int id);
         Task<Passenger> AddAsync(Passenger passenger);
+        Task<int> SaveChangesAsync();
         Task<Passenger?> UpdateAsync(Passenger passenger);
         Task<bool> DeleteAsync(int id);
     }

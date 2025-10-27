@@ -17,9 +17,9 @@ namespace Airline1.Models
         public int FlightId { get; set; } // Foreign key for the Flight
         public Flight? Flight { get; set; } // Navigation property (Fixes 'Flight' error)
 
-        //[ForeignKey(nameof(Booking))]
+        [ForeignKey(nameof(Booking))]
         public int BookingId { get; set; } // Foreign key for the Booking/Ticket
-        //public Booking? Booking { get; set; }
+        public Booking? Booking { get; set; }
 
         [MaxLength(50)]
         public required string FirstName { get; set; } = string.Empty;

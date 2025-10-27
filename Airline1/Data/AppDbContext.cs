@@ -13,6 +13,9 @@ namespace Airline1.Data
         public DbSet<Passenger> Passengers { get; set; }
         public DbSet<AircraftConfiguration> AircraftConfigurations { get; set; }
         public DbSet<CabinConfigurationDetail> CabinConfigurationDetails { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
+        public DbSet<BookingPassenger> BookingPassengers { get; set; }
+
         public DbSet<User> Users { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -80,6 +83,20 @@ namespace Airline1.Data
                 .WithOne()
                 .HasForeignKey(cd => cd.ConfigurationID)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Passenger>()
+                .HasOne(p => p.Booking) // Assuming Passenger has a navigation property to Booking
+                .WithMany()             // Assuming Booking does not have a collection of Passengers directly
+                .HasForeignKey(p => p.BookingId)
+                .OnDelete(DeleteBehavior.Restrict); // Set to RESTRICT to avoid cycles
+
+            modelBuilder.Entity<Booking>()
+                .HasIndex(b => b.BookingCode)
+                .IsUnique();
+
+            modelBuilder.Entity<BookingPassenger>()
+                .HasIndex(bp => new { bp.FlightId, bp.SeatNumber })
+                .IsUnique(); // prevents duplicate seat assignment on same flight
 
             //  User 
             modelBuilder.Entity<User>()
