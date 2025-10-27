@@ -150,11 +150,17 @@ namespace Airline_Ticketing.Migrations
                     b.Property<DateOnly>("BookingDate")
                         .HasColumnType("date");
 
+                    b.Property<int>("FlightID")
+                        .HasColumnType("int");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TotalAmount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserID")
                         .HasColumnType("int");
 
                     b.HasKey("BookingID");
@@ -466,8 +472,15 @@ namespace Airline_Ticketing.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("FirstName")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MiddleName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Password")
