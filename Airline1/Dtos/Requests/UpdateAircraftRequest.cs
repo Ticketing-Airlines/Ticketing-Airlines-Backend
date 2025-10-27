@@ -6,28 +6,32 @@ namespace Airline1.Dtos.Requests
 {
     public class UpdateAircraftRequest
     {
+        // --- Core Identifiers are now OPTIONAL for partial updates (PATCH/PUT) ---
         [MaxLength(50)]
-        public required string TailNumber { get; set; }
+        public string? TailNumber { get; set; }
 
         [MaxLength(100)]
-        public required string Manufacturer { get; set; }
+        public string? Manufacturer { get; set; }
 
         [MaxLength(100)]
-        public required string Model { get; set; }
+        public string? Model { get; set; }
 
+        [MaxLength(100)]
         public string? Nickname { get; set; }
 
         [MaxLength(100)]
-        public required string RegistrationNumber { get; set; }
+        public string? RegistrationNumber { get; set; }
 
-        public int? SeatingCapacity { get; set; }
+        // The client can update the configuration of the aircraft by changing this ID.
+        [MaxLength(50)]
+        public string? ConfigurationID { get; set; }
 
         public DateTime? FirstFlightDate { get; set; }
 
+        // Made nullable to allow partial updates
         public AircraftType? Type { get; set; }
 
+        // Optional Foreign Key
         public int? BaseAirportId { get; set; }
-
-        public AircraftStatus? Status { get; set; }
     }
 }
