@@ -7,18 +7,11 @@ using BCrypt.Net;
 
 namespace Airline1.Services
 {
-    public class AuthService : IAuthService
+    public class AuthService(IAuthRepository authRepo) : IAuthService
     {
-        private readonly IAuthRepository _authRepo;
-
-        public AuthService(IAuthRepository authRepo)
-        {
-            _authRepo = authRepo;
-        }
-
         public async Task<AuthResponse?> LoginAsync(LoginRequest request)
         {
-            var user = await _authRepo.GetByEmailAsync(request.Email);
+            var user = await authRepo.GetByEmailAsync(request.Email);
             if (user == null) return null;
 
             bool isValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
@@ -28,7 +21,7 @@ namespace Airline1.Services
             user.SessionTokenExpiry = DateTime.UtcNow.AddHours(2);
             user.LastLogin = DateTime.UtcNow;
 
-            await _authRepo.UpdateAsync(user);
+            await authRepo.UpdateAsync(user);
 
             return new AuthResponse
             {
@@ -45,23 +38,23 @@ namespace Airline1.Services
 
         public async Task<bool> LogoutAsync(string sessionToken)
         {
-            var user = await _authRepo.GetBySessionTokenAsync(sessionToken);
+            var user = await authRepo.GetBySessionTokenAsync(sessionToken);
             if (user == null) return false;
 
             user.SessionToken = null;
             user.SessionTokenExpiry = null;
-            await _authRepo.UpdateAsync(user);
+            await authRepo.UpdateAsync(user);
             return true;
         }
 
         public async Task<bool> ForgotPasswordAsync(ForgotPasswordRequest request)
         {
-            var user = await _authRepo.GetByEmailAsync(request.Email);
+            var user = await authRepo.GetByEmailAsync(request.Email);
             if (user == null) return false;
 
             user.ResetToken = Guid.NewGuid().ToString("N");
             user.ResetTokenExpiry = DateTime.UtcNow.AddHours(1);
-            await _authRepo.UpdateAsync(user);
+            await authRepo.UpdateAsync(user);
 
             // Normally you'd send an email here.
             Console.WriteLine($"Reset token for {user.Email}: {user.ResetToken}");
@@ -70,7 +63,7 @@ namespace Airline1.Services
 
         public async Task<bool> ResetPasswordAsync(ResetPasswordRequest request)
         {
-            var user = await _authRepo.GetBySessionTokenAsync(request.ResetToken);
+            var user = await authRepo.GetBySessionTokenAsync(request.ResetToken);
             if (user == null || user.ResetTokenExpiry < DateTime.UtcNow)
                 return false;
 
@@ -78,7 +71,7 @@ namespace Airline1.Services
             user.ResetToken = null;
             user.ResetTokenExpiry = null;
 
-            await _authRepo.UpdateAsync(user);
+            await authRepo.UpdateAsync(user);
             return true;
         }
     }

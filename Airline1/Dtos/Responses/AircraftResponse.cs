@@ -10,12 +10,11 @@ namespace Airline1.Dtos.Responses
         public required string Manufacturer { get; set; }
         public required string Model { get; set; }
         public required string RegistrationNumber { get; set; }
-        public int SeatingCapacity { get; set; }
+        public required string ConfigurationID { get; set; }
         public DateTime? FirstFlightDate { get; set; }
         public AircraftType Type { get; set; }
-        public AircraftStatus Status { get; set; }
         public int? BaseAirportId { get; set; }
-        public required string BaseAirportName { get; set; } 
+        public string? BaseAirportName { get; set; } 
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }

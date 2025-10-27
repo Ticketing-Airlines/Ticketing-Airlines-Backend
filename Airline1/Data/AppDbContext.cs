@@ -9,6 +9,9 @@ namespace Airline1.Data
         public DbSet<Aircraft> Aircrafts { get; set; }
         public DbSet<FlightRoute> FlightRoutes { get; set; }
         public DbSet<Flight> Flights { get; set; }
+        public DbSet<Passenger> Passengers { get; set; }
+        public DbSet<AircraftConfiguration> AircraftConfigurations { get; set; }
+        public DbSet<CabinConfigurationDetail> CabinConfigurationDetails { get; set; }
         public DbSet<User> Users { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -69,6 +72,13 @@ namespace Airline1.Data
                 .WithMany()
                 .HasForeignKey(f => f.RouteId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // --- Relationships and Constraints ---
+            modelBuilder.Entity<AircraftConfiguration>()
+                .HasMany(ac => ac.CabinDetails)
+                .WithOne()
+                .HasForeignKey(cd => cd.ConfigurationID)
+                .OnDelete(DeleteBehavior.Cascade);
 
             //  User 
             modelBuilder.Entity<User>()

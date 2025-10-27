@@ -7,8 +7,6 @@ namespace Airline1.Repositories
 {
     public class FlightRepository(AppDbContext db) : IFlightRepository
     {
-
-
         public async Task<IEnumerable<Flight>> GetAllAsync()
         {
             return await db.Flights

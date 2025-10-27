@@ -102,6 +102,12 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFlightRepository, FlightRepository>();
 builder.Services.AddScoped<IFlightService, FlightService>();
 
+builder.Services.AddScoped<IPassengerRepository, PassengerRepository>();
+builder.Services.AddScoped<IPassengerService, PassengerService>();
+
+builder.Services.AddScoped<IAircraftConfigurationRepository, AircraftConfigurationRepository>();
+builder.Services.AddScoped<IAircraftConfigurationService, AircraftConfigurationService>();
+
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
