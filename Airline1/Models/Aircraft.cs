@@ -24,21 +24,24 @@ namespace Airline1.Models
         public required string Model { get; set; }           // e.g. A320, B737-800
 
         [MaxLength(100)]
-        public required string RegistrationNumber { get; set; } // official registration
+        public required string RegistrationNumber { get; set; } 
 
         [NotMapped] // Tells Entity Framework to ignore this property in the database schema.
         public string DisplayName => string.IsNullOrEmpty(Nickname)
-            ? $"{Manufacturer} {Model}"  // Simplified expression
+            ? $"{Manufacturer} {Model}"  
             : Nickname;
 
         public DateTime? FirstFlightDate { get; set; }
 
         public AircraftType Type { get; set; } = AircraftType.NarrowBody;
 
-        [MaxLength(50)] // Ensure this matches the type of the ConfigurationID in the new API
+        [MaxLength(50)] 
         public required string ConfigurationID { get; set; }
 
-        // optional: where the aircraft is based or currently located
+        [ForeignKey(nameof(ConfigurationID))]
+        public AircraftConfiguration? Configuration { get; set; }
+
+
         [ForeignKey(nameof(BaseAirport))]
         public int? BaseAirportId { get; set; }
         public Airport? BaseAirport { get; set; }

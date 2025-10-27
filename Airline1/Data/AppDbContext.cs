@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Airline1.Models;
 
+
 namespace Airline1.Data
 {
     public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
