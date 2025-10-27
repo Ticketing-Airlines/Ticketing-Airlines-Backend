@@ -26,8 +26,6 @@ namespace Airline1.Models
         [MaxLength(100)]
         public required string RegistrationNumber { get; set; } // official registration
 
-        public int SeatingCapacity { get; set; }    // number of seats
-
         [NotMapped] // Tells Entity Framework to ignore this property in the database schema.
         public string DisplayName => string.IsNullOrEmpty(Nickname)
             ? $"{Manufacturer} {Model}"  // Simplified expression
@@ -37,12 +35,13 @@ namespace Airline1.Models
 
         public AircraftType Type { get; set; } = AircraftType.NarrowBody;
 
-        public AircraftStatus Status { get; set; } = AircraftStatus.Active;
+        [MaxLength(50)] // Ensure this matches the type of the ConfigurationID in the new API
+        public required string ConfigurationID { get; set; }
 
         // optional: where the aircraft is based or currently located
         [ForeignKey(nameof(BaseAirport))]
         public int? BaseAirportId { get; set; }
-        public required Airport BaseAirport { get; set; }
+        public Airport? BaseAirport { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }

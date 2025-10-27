@@ -19,15 +19,13 @@ namespace Airline1.Dtos.Requests
         [MaxLength(100)]
         public required string RegistrationNumber { get; set; }
 
-        [Range(0, 2000)]
-        public int SeatingCapacity { get; set; } = 0;
+        [MaxLength(50)]
+        public required string ConfigurationID { get; set; }
 
         public DateTime? FirstFlightDate { get; set; }
 
         public AircraftType Type { get; set; } = AircraftType.NarrowBody;
 
         public int? BaseAirportId { get; set; }
-
-        public AircraftStatus Status { get; set; } = AircraftStatus.Active;
     }
 }
