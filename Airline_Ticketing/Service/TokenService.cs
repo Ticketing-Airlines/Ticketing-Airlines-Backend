@@ -19,9 +19,9 @@ namespace Airline_Ticketing.Service
 
         public string CreateAccessToken(Users user)
         {
-            var claims = new List<Claim> { 
-            
-             new Claim(ClaimTypes.Name, user.Name),
+            var claims = new List<Claim> {
+
+             new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
 
              new Claim(ClaimTypes.Email, user.Email),
 
