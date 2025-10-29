@@ -39,6 +39,29 @@ namespace Airline1.Mappings
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => src.Route != null ? src.Route.OriginAirport.Name : null))
                 .ForMember(dest => dest.Destination, opt => opt.MapFrom(src => src.Route != null ? src.Route.DestinationAirport.Name : null));
 
+            CreateMap<CreatePassengerRequest, Passenger>();
+            CreateMap<UpdatePassengerRequest, Passenger>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<Passenger, PassengerResponse>()
+                .ForMember(dest => dest.FullName,
+                    opt => opt.MapFrom(src =>
+                        $"{src.FirstName} {(string.IsNullOrEmpty(src.MiddleName) ? "" : src.MiddleName + " ")}{src.LastName}".Trim()))
+                .ForMember(dest => dest.Email,
+                    opt => opt.MapFrom(src => src.User != null ? src.User.Email : null))
+                .ForMember(dest => dest.FlightNumber,
+                    opt => opt.MapFrom(src => src.Flight != null ? src.Flight.FlightNumber : null));
+            //.ForMember(dest => dest.SeatNumber,
+            //    opt => opt.MapFrom(src => src.SeatNumber != null ? src.SeatNumber : "Unassigned"));
+            
+            // Aircraft Configuration
+            CreateMap<CreateAircraftConfigurationRequest, AircraftConfiguration>();
+            CreateMap<UpdateAircraftConfigurationRequest, AircraftConfiguration>()
+                .ForAllMembers(opt => opt.Condition((src, dest, val) => val != null));
+            CreateMap<CabinDetailDto, CabinConfigurationDetail>();
+            CreateMap<AircraftConfiguration, AircraftConfigurationResponse>();
+            CreateMap<CabinConfigurationDetail, CabinDetailResponse>();
+
 
             // Users
             CreateMap<CreateUserRequest, User>();

@@ -18,6 +18,8 @@ namespace Airline1.Repositories
         {
             return await db.Aircrafts
                 .Include(a => a.BaseAirport)
+                .Include(a => a.Configuration)                    
+                .ThenInclude(c => c!.CabinDetails)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -26,6 +28,8 @@ namespace Airline1.Repositories
         {
             return await db.Aircrafts
                 .Include(a => a.BaseAirport)
+                .Include(a => a.Configuration)
+                    .ThenInclude(c => c!.CabinDetails)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
@@ -45,6 +49,7 @@ namespace Airline1.Repositories
         {
             return await db.Aircrafts.AnyAsync(a => a.Id == id);
         }
+
 
         public async Task<Aircraft?> GetByTailNumberAsync(string tailNumber)
         {
