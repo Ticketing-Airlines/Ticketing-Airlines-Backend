@@ -10,8 +10,6 @@ namespace Airline1.IRepositories
         Task<IEnumerable<Booking>> GetByFlightIdAsync(int flightId);
         Task SaveChangesAsync();
         Task CancelAsync(Booking booking);
-
-        // NEW
         void Update(Booking booking);
     }
 }

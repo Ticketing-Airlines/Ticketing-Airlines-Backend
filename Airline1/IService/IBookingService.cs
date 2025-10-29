@@ -9,7 +9,6 @@ namespace Airline1.IService
         Task<BookingResponse?> GetByIdAsync(int id);
         Task<BookingResponse?> GetByCodeAsync(string code);
         Task<BookingResponse?> UpdateBookingAsync(int id, UpdateBookingRequest request);
-
         Task<bool> CancelBookingAsync(int id);
         Task<IEnumerable<BookingResponse>> GetByFlightAsync(int flightId);
     }
