@@ -8,14 +8,12 @@ namespace Airline1.Models
         public int Id { get; set; }
 
         // short machine-friendly code, e.g. "WEATHER", "TECHNICAL"
-        [Required, MaxLength(50)]
-        public string Code { get; set; } = string.Empty;
+        [MaxLength(50)]
+        public required string Code { get; set; } = string.Empty;
 
-        // human-friendly description, reused by flight notifications
-        [Required, MaxLength(500)]
-        public string Description { get; set; } = string.Empty;
+        [MaxLength(500)]
+        public required string Description { get; set; } = string.Empty;
 
-        // optional category / tag (for filtering in UI)
         [MaxLength(100)]
         public string? Category { get; set; }
 
