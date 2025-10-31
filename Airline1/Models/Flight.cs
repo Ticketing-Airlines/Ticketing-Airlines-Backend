@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Airline1.Common;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Airline1.Models
@@ -7,28 +8,17 @@ namespace Airline1.Models
     {
         [Key]
         public int Id { get; set; }
-
-        [Required]
-        public string FlightNumber { get; set; } = null!;
-
-        [Required]
-        public int AircraftId { get; set; }
-
-        [Required]
-        public int RouteId { get; set; }
-
-        [Required]
-        public DateTime DepartureTime { get; set; }
-
-        [Required]
-        public DateTime ArrivalTime { get; set; }
-
-        public decimal Price { get; set; }
+        public required string FlightNumber { get; set; } = null!;
+        public required int AircraftId { get; set; }
+        public required int RouteId { get; set; }
+        public required DateTime DepartureTime { get; set; }
+        public required DateTime ArrivalTime { get; set; }
 
         [ForeignKey("AircraftId")]
         public Aircraft? Aircraft { get; set; }
 
         [ForeignKey("RouteId")]
         public FlightRoute? Route { get; set; }
+
     }
 }

@@ -10,12 +10,13 @@ namespace Airline1.Data
         public DbSet<Aircraft> Aircrafts { get; set; }
         public DbSet<FlightRoute> FlightRoutes { get; set; }
         public DbSet<Flight> Flights { get; set; }
+        public DbSet<FlightPrice> FlightPrices { get; set; }
         public DbSet<Passenger> Passengers { get; set; }
         public DbSet<AircraftConfiguration> AircraftConfigurations { get; set; }
         public DbSet<CabinConfigurationDetail> CabinConfigurationDetails { get; set; }
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<BookingPassenger> BookingPassengers { get; set; }
-
+        public DbSet<FlightStatusReason> FlightStatusReasons { get; set; }
         public DbSet<User> Users { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -57,9 +58,14 @@ namespace Airline1.Data
 
             // Flight relationships
             modelBuilder.Entity<Flight>()
-                .Property(f => f.Price)
-                .HasPrecision(18, 4);
-        
+                .HasMany(f => f.FlightPrices)
+                .WithOne(p => p.Flight)
+                .HasForeignKey(p => p.FlightId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<FlightPrice>()
+                .HasIndex(p => new { p.FlightId, p.CabinClass, p.Type, p.EffectiveFrom });
+
 
             modelBuilder.Entity<Flight>()
                 .HasIndex(f => f.FlightNumber)
@@ -85,8 +91,8 @@ namespace Airline1.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Passenger>()
-                .HasOne(p => p.Booking) // Assuming Passenger has a navigation property to Booking
-                .WithMany()             // Assuming Booking does not have a collection of Passengers directly
+                .HasOne(p => p.Booking) // Passenger has a navigation property to Booking
+                .WithMany()             // Booking does not have a collection of Passengers directly
                 .HasForeignKey(p => p.BookingId)
                 .OnDelete(DeleteBehavior.Restrict); // Set to RESTRICT to avoid cycles
 
@@ -96,7 +102,17 @@ namespace Airline1.Data
 
             modelBuilder.Entity<BookingPassenger>()
                 .HasIndex(bp => new { bp.FlightId, bp.SeatNumber })
-                .IsUnique(); // prevents duplicate seat assignment on same flight
+                .IsUnique(); //prevents duplicate seat assignment on same flight
+            
+            // flight reason
+            modelBuilder.Entity<Flight>()
+                .HasOne(f => f.Reason)
+                .WithMany()
+                .HasForeignKey(f => f.ReasonId)
+                .OnDelete(DeleteBehavior.SetNull);
+            // common
+            modelBuilder.Entity<Flight>()
+                .HasIndex(f => f.Status);
 
             //  User 
             modelBuilder.Entity<User>()

@@ -31,4 +31,13 @@
         Grounded,
         Decommissioned
     }
+    public enum FlightStatus
+    {
+        Scheduled = 0,
+        Boarding = 1,
+        Departed = 2,
+        Delayed = 3,
+        Cancelled = 4,
+        Landed = 5
+    }
 }

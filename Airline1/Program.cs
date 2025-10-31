@@ -99,6 +99,10 @@ builder.Services.AddScoped<IFlightRouteService, FlightRouteService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+builder.Services.AddScoped<IFlightPriceRepository, FlightPriceRepository>();
+builder.Services.AddScoped<IFlightPriceService, FlightPriceService>();
+
+
 builder.Services.AddScoped<IFlightRepository, FlightRepository>();
 builder.Services.AddScoped<IFlightService, FlightService>();
 
