@@ -1,5 +1,7 @@
 using Airline_Ticketing.Data;
+using Airline_Ticketing.IRepository;
 using Airline_Ticketing.IServices;
+using Airline_Ticketing.Repository;
 using Airline_Ticketing.Service;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +21,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IPassengerService, PassengerService>();
+// Register Repositories
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+
+// Register Services
+
+builder.Services.AddScoped<IUserService, UserService>();
+
+
+
 
 var app = builder.Build();
 
