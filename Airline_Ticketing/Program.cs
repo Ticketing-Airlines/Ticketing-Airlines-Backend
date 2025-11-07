@@ -1,5 +1,7 @@
 using Airline_Ticketing.Data;
+using Airline_Ticketing.IRepository;
 using Airline_Ticketing.IServices;
+using Airline_Ticketing.Repository;
 using Airline_Ticketing.Service;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +20,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IPassengerRepository, PassengerRepository>();
 
 builder.Services.AddScoped<IPassengerService, PassengerService>();
 
