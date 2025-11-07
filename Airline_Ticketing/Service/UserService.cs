@@ -1,31 +1,31 @@
-﻿using Airline_Ticketing.Data;
-using Airline_Ticketing.DTOs.Request;
+﻿using Airline_Ticketing.DTOs.Request;
 using Airline_Ticketing.DTOs.Response;
+using Airline_Ticketing.IRepository;
 using Airline_Ticketing.IServices;
 using Airline_Ticketing.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 
+
 namespace Airline_Ticketing.Service
 {
     public class UserService : IUserService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUserRepository _userRepository;
 
-        public UserService(ApplicationDbContext context)
+        public UserService(IUserRepository userRepository)
         {
-            _context = context;
+            _userRepository = userRepository;
         }
 
         // Register a new user
         public async Task<UserResponse> RegisterAsync(RegisterUserRequest request)
         {
             // Check if user already exists with this email
-            var existingUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == request.Email);
+            var emailExists = await _userRepository.EmailExistsAsync(request.Email);
 
-            if (existingUser != null)
+            if (emailExists)
             {
                 throw new InvalidOperationException("A user with this email already exists.");
             }
@@ -46,19 +46,18 @@ namespace Airline_Ticketing.Service
             };
 
             // Add to database and save
-            _context.Users.Add(newUser);
-            await _context.SaveChangesAsync();
+            var createdUser = await _userRepository.AddAsync(newUser);
 
             // Return the user response (without password)
             return new UserResponse
             {
-                UserId = newUser.UserID,
-                FirstName = newUser.FirstName,
-                MiddleName = newUser.MiddleName,
-                LastName = newUser.LastName,
-                Email = newUser.Email,
-                Phone = newUser.Phone,
-                CreatedAt = newUser.CreatedAt
+                UserId = createdUser.UserID,
+                FirstName = createdUser.FirstName,
+                MiddleName = createdUser.MiddleName,
+                LastName = createdUser.LastName,
+                Email = createdUser.Email,
+                Phone = createdUser.Phone,
+                CreatedAt = createdUser.CreatedAt
             };
         }
 
@@ -66,8 +65,7 @@ namespace Airline_Ticketing.Service
         public async Task<LoginResponse> LoginAsync(LoginUserRequest request)
         {
             // Find user by email
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == request.Email);
+            var user = await _userRepository.GetByEmailAsync(request.Email);
 
             if (user == null)
             {
@@ -98,8 +96,7 @@ namespace Airline_Ticketing.Service
         // Get user by ID
         public async Task<UserResponse?> GetUserByIdAsync(int id)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.UserID == id);
+            var user = await _userRepository.GetByIdAsync(id);
 
             if (user == null)
             {
@@ -121,8 +118,7 @@ namespace Airline_Ticketing.Service
         // Get user by email
         public async Task<UserResponse?> GetUserByEmailAsync(string email)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == email);
+            var user = await _userRepository.GetByEmailAsync(email);
 
             if (user == null)
             {
@@ -144,18 +140,18 @@ namespace Airline_Ticketing.Service
         // Get all users
         public async Task<IEnumerable<UserResponse>> GetAllUsersAsync()
         {
-            return await _context.Users
-                .Select(u => new UserResponse
-                {
-                    UserId = u.UserID,
-                    FirstName = u.FirstName,
-                    MiddleName = u.MiddleName,
-                    LastName = u.LastName,
-                    Email = u.Email,
-                    Phone = u.Phone,
-                    CreatedAt = u.CreatedAt
-                })
-                .ToListAsync();
+            var users = await _userRepository.GetAllAsync();
+
+            return users.Select(u => new UserResponse
+            {
+                UserId = u.UserID,
+                FirstName = u.FirstName,
+                MiddleName = u.MiddleName,
+                LastName = u.LastName,
+                Email = u.Email,
+                Phone = u.Phone,
+                CreatedAt = u.CreatedAt
+            });
         }
 
         
