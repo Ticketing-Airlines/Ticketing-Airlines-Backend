@@ -1,37 +1,23 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Airline_Ticketing.Enums;
 
 namespace Airline_Ticketing.DTOs.Request
 {
     public class CreateBookingRequest
     {
-        [Required(ErrorMessage = "A Flight ID must be Provied.")]
+        [Required(ErrorMessage = "User ID is required.")]
+        public int UserID { get; set; }
+
+        [Required(ErrorMessage = "Flight ID is required.")]
         public int FlightID { get; set; }
 
-        [Required(ErrorMessage = "At least one passenger is required to make a booking.")]
-        public List<PassengerDetailsRequest> Passengers { get; set; } = new List<PassengerDetailsRequest>();
+        [Required(ErrorMessage = "Booking date is required.")]
+        public DateOnly BookingDate { get; set; }
 
+        [Required(ErrorMessage = "Total amount is required.")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Total amount must be greater than 0.")]
+        public decimal TotalAmount { get; set; }
 
-    }
-
-    public class PassengerDetailsRequest
-    {
-        [Required(ErrorMessage = "Name is Required.")]
-        public string Name { get; set; }
-
-        [Required(ErrorMessage = "Date of Your Birth is Required")]
-        public DateOnly DateOfBirth { get; set; }
-
-
-
-        [Required(ErrorMessage = "Passport Number is Required")]
-        public string PassportNumber { get; set; }
-
-        [Required(ErrorMessage = "Your Nationality is Required")]
-        [StringLength(100)]
-        public string Nationality { get; set; }
-
-
-        [Required(ErrorMessage = "A seat number must be selected for each passenger")]
-        public string SeatNumber { get; set; }
+        public BookingStatus Status { get; set; } = BookingStatus.Pending;
     }
 }
