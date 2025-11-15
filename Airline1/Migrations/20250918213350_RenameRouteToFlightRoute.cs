@@ -52,7 +52,7 @@ namespace Airline1.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_FlightRoutes_OriginAirportId_DestinationAirportId",
                 table: "FlightRoutes",
-                columns: new[] { "OriginAirportId", "DestinationAirportId" },
+                columns: ["OriginAirportId", "DestinationAirportId"],
                 unique: true);
         }
 

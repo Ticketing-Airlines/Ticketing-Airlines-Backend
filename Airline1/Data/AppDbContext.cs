@@ -1,17 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Airline1.Models;
 
+
 namespace Airline1.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options)
-            : base(options) { }
-
         public DbSet<Airport> Airports { get; set; }
         public DbSet<Aircraft> Aircrafts { get; set; }
-
         public DbSet<FlightRoute> FlightRoutes { get; set; }
+        public DbSet<Flight> Flights { get; set; }
+        public DbSet<FlightPrice> FlightPrices { get; set; }
+        public DbSet<Passenger> Passengers { get; set; }
+        public DbSet<AircraftConfiguration> AircraftConfigurations { get; set; }
+        public DbSet<CabinConfigurationDetail> CabinConfigurationDetails { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
+        public DbSet<BookingPassenger> BookingPassengers { get; set; }
+        public DbSet<FlightStatusReason> FlightStatusReasons { get; set; }
+        public DbSet<User> Users { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // small sanity constraints
@@ -49,6 +55,73 @@ namespace Airline1.Data
                 .WithMany()
                 .HasForeignKey(r => r.DestinationAirportId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Flight relationships
+            modelBuilder.Entity<Flight>()
+                .HasMany(f => f.FlightPrices)
+                .WithOne(p => p.Flight)
+                .HasForeignKey(p => p.FlightId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<FlightPrice>()
+                .HasIndex(p => new { p.FlightId, p.CabinClass, p.Type, p.EffectiveFrom });
+
+
+            modelBuilder.Entity<Flight>()
+                .HasIndex(f => f.FlightNumber)
+                .IsUnique();
+
+            modelBuilder.Entity<Flight>()
+                .HasOne(f => f.Aircraft)
+                .WithMany()
+                .HasForeignKey(f => f.AircraftId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Flight>()
+                .HasOne(f => f.Route)
+                .WithMany()
+                .HasForeignKey(f => f.RouteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // --- Relationships and Constraints ---
+            modelBuilder.Entity<AircraftConfiguration>()
+                .HasMany(ac => ac.CabinDetails)
+                .WithOne()
+                .HasForeignKey(cd => cd.ConfigurationID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Passenger>()
+                .HasOne(p => p.Booking) // Passenger has a navigation property to Booking
+                .WithMany()             // Booking does not have a collection of Passengers directly
+                .HasForeignKey(p => p.BookingId)
+                .OnDelete(DeleteBehavior.Restrict); // Set to RESTRICT to avoid cycles
+
+            modelBuilder.Entity<Booking>()
+                .HasIndex(b => b.BookingCode)
+                .IsUnique();
+
+            modelBuilder.Entity<BookingPassenger>()
+                .HasIndex(bp => new { bp.FlightId, bp.SeatNumber })
+                .IsUnique(); //prevents duplicate seat assignment on same flight
+            
+            // flight reason
+            modelBuilder.Entity<Flight>()
+                .HasOne(f => f.Reason)
+                .WithMany()
+                .HasForeignKey(f => f.ReasonId)
+                .OnDelete(DeleteBehavior.SetNull);
+            // common
+            modelBuilder.Entity<Flight>()
+                .HasIndex(f => f.Status);
+
+            //  User 
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.PhoneNumber)
+                .IsUnique();
 
             base.OnModelCreating(modelBuilder);
         }

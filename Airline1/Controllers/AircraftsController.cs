@@ -1,20 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Airline1.Dtos.Requests;
 using Airline1.Dtos.Responses;
-using Airline1.Services.Interfaces;
+using Airline1.IService;
 
 namespace Airline1.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class AircraftsController : ControllerBase
-    {
-        private readonly IAircraftService _service;
-
-        public AircraftsController(IAircraftService service)
-        {
-            _service = service;
-        }
+    public class AircraftsController(IAircraftService service) : ControllerBase
+    { 
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateAircraftRequest request)
@@ -23,7 +17,7 @@ namespace Airline1.Controllers
 
             try
             {
-                var created = await _service.CreateAsync(request);
+                var created = await service.CreateAsync(request);
                 return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
             }
             catch (InvalidOperationException ex)
@@ -35,14 +29,14 @@ namespace Airline1.Controllers
         [HttpGet]
         public async Task<ActionResult<List<AircraftResponse>>> GetAll()
         {
-            var list = await _service.GetAllAsync();
+            var list = await service.GetAllAsync();
             return Ok(list);
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<AircraftResponse>> GetById(int id)
         {
-            var item = await _service.GetByIdAsync(id);
+            var item = await service.GetByIdAsync(id);
             if (item == null) return NotFound();
             return Ok(item);
         }
@@ -52,7 +46,7 @@ namespace Airline1.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var updated = await _service.UpdateAsync(id, request);
+            var updated = await service.UpdateAsync(id, request);
             if (updated == null) return NotFound();
             return Ok(updated);
         }
@@ -60,7 +54,7 @@ namespace Airline1.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var deleted = await _service.DeleteAsync(id);
+            var deleted = await service.DeleteAsync(id);
             if (!deleted) return NotFound();
             return NoContent();
         }

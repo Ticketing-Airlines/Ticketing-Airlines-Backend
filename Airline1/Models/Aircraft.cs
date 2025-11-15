@@ -11,8 +11,11 @@ namespace Airline1.Models
         public int Id { get; set; }
 
         // e.g. "RP-C1234" or tail number. Should be unique.
-        [Required, MaxLength(50)]
+        [MaxLength(50)]
         public required string TailNumber { get; set; }
+
+        [MaxLength(100)]
+        public string? Nickname { get; set; }
 
         [MaxLength(100)]
         public required string Manufacturer { get; set; }    // e.g. Airbus, Boeing
@@ -21,20 +24,27 @@ namespace Airline1.Models
         public required string Model { get; set; }           // e.g. A320, B737-800
 
         [MaxLength(100)]
-        public required string RegistrationNumber { get; set; } // official registration
+        public required string RegistrationNumber { get; set; } 
 
-        public int SeatingCapacity { get; set; }    // number of seats
+        [NotMapped] // Tells Entity Framework to ignore this property in the database schema.
+        public string DisplayName => string.IsNullOrEmpty(Nickname)
+            ? $"{Manufacturer} {Model}"  
+            : Nickname;
 
         public DateTime? FirstFlightDate { get; set; }
 
         public AircraftType Type { get; set; } = AircraftType.NarrowBody;
 
-        public AircraftStatus Status { get; set; } = AircraftStatus.Active;
+        [MaxLength(50)] 
+        public required string ConfigurationID { get; set; }
 
-        // optional: where the aircraft is based or currently located
+        [ForeignKey(nameof(ConfigurationID))]
+        public AircraftConfiguration? Configuration { get; set; }
+
+
         [ForeignKey(nameof(BaseAirport))]
         public int? BaseAirportId { get; set; }
-        public required Airport BaseAirport { get; set; }
+        public Airport? BaseAirport { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }

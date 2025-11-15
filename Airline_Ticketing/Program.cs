@@ -32,6 +32,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 
 
+builder.Services.AddScoped<IPassengerRepository, PassengerRepository>();
+
+builder.Services.AddScoped<IPassengerService, PassengerService>();
 
 var app = builder.Build();
 

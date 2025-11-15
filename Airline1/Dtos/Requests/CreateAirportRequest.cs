@@ -4,13 +4,13 @@ namespace Airline1.Dtos.Requests
 {
     public class CreateAirportRequest
     {
-        [Required, MaxLength(3)]
+        [MaxLength(3)]
         public required string IataCode { get; set; }
 
         [MaxLength(4)]
         public required string IcaoCode { get; set; }
 
-        [Required, MaxLength(200)]
+        [MaxLength(200)]
         public required string Name { get; set; }
 
         [MaxLength(100)]
