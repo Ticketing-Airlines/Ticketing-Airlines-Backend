@@ -21,6 +21,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Register Repositories
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+
+// Register Services
+
+builder.Services.AddScoped<IUserService, UserService>();
+
+
+
 builder.Services.AddScoped<IPassengerRepository, PassengerRepository>();
 
 builder.Services.AddScoped<IPassengerService, PassengerService>();
