@@ -24,11 +24,13 @@ builder.Services.AddSwaggerGen();
 // Register Repositories
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
 
 // Register Services
 
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
 
 
 
