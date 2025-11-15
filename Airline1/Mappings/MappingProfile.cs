@@ -63,6 +63,11 @@ namespace Airline1.Mappings
             CreateMap<CabinConfigurationDetail, CabinDetailResponse>();
 
 
+            CreateMap<CreateBookingRequest, Booking>();
+            CreateMap<PassengerForBookingDto, BookingPassenger>();
+            CreateMap<Booking, BookingResponse>();
+            CreateMap<BookingPassenger, BookingPassengerResponse>();
+
             // Users
             CreateMap<CreateUserRequest, User>();
             CreateMap<UpdateUserRequest, User>()
