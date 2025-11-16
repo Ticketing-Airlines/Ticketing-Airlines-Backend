@@ -1,8 +1,8 @@
-﻿using Airline_Ticketing.Data;
-using Airline_Ticketing.DTOs.Request;
+﻿using Airline_Ticketing.DTOs.Request;
 using Airline_Ticketing.DTOs.Response;
+using Airline_Ticketing.IRepository;
 using Airline_Ticketing.IServices;
-using Airline_Ticketing.Model; 
+using Airline_Ticketing.Model;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -13,12 +13,12 @@ namespace Airline_Ticketing.Service
     public class PassengerService : IPassengerService
     {
 
-        private readonly ApplicationDbContext _context;
+        private readonly IPassengerRepository _passengerRepository;
 
-        // We inject the database context here
-        public PassengerService(ApplicationDbContext context)
+        // We inject the passenger repository here
+        public PassengerService(IPassengerRepository passengerRepository)
         {
-            _context = context;
+            _passengerRepository = passengerRepository;
         }
 
         public async Task<PassengerResponse> CreatePassengerAsync(CreatePassengerRequest request)
@@ -26,46 +26,41 @@ namespace Airline_Ticketing.Service
             //Convert the "Request DTO" into a "Database Model"
             var newPassenger = new Passengers
             {
-                Name = request.Name, 
+                Name = request.Name,
                 DateOfBirth = request.DateOfBirth,
                 PassportNumber = request.PassportNumber,
                 Nationality = request.Nationality
             };
 
-            // Add it to the database and save
-            _context.Passengers.Add(newPassenger);
-            await _context.SaveChangesAsync();
+            // Add it to the database and save using repository
+            var createdPassenger = await _passengerRepository.AddAsync(newPassenger);
 
-            // 3. Convert the new database model back into a "Response DTO" to return it
+            // Convert the new database model back into a "Response DTO" to return it
             return new PassengerResponse
             {
-                Id = newPassenger.PassengerID, 
-                Name = newPassenger.Name, 
-                DateOfBirth = newPassenger.DateOfBirth,
-                Nationality = newPassenger.Nationality
+                Id = createdPassenger.PassengerID,
+                Name = createdPassenger.Name,
+                DateOfBirth = createdPassenger.DateOfBirth,
+                Nationality = createdPassenger.Nationality
             };
         }
 
         public async Task<IEnumerable<PassengerResponse>> GetAllPassengersAsync()
         {
-            var passengers = await _context.Passengers
-                .Select(p => new PassengerResponse 
-                {
-                    Id = p.PassengerID, 
-                    Name = p.Name,       
-                    DateOfBirth = p.DateOfBirth,
-                    Nationality = p.Nationality
-                })
-                .ToListAsync();
+            var passengers = await _passengerRepository.GetAllAsync();
 
-            return passengers;
+            return passengers.Select(p => new PassengerResponse
+            {
+                Id = p.PassengerID,
+                Name = p.Name,
+                DateOfBirth = p.DateOfBirth,
+                Nationality = p.Nationality
+            });
         }
 
         public async Task<PassengerResponse?> GetPassengerByIdAsync(int id)
         {
-            var passenger = await _context.Passengers
-                // First, find the passenger in the database using the correct ID field
-                .FirstOrDefaultAsync(p => p.PassengerID == id); 
+            var passenger = await _passengerRepository.GetByIdAsync(id);
 
             if (passenger == null)
             {
@@ -75,8 +70,8 @@ namespace Airline_Ticketing.Service
             // If found, convert it to the response DTO
             return new PassengerResponse
             {
-                Id = passenger.PassengerID, 
-                Name = passenger.Name,      
+                Id = passenger.PassengerID,
+                Name = passenger.Name,
                 DateOfBirth = passenger.DateOfBirth,
                 Nationality = passenger.Nationality
             };
@@ -85,8 +80,7 @@ namespace Airline_Ticketing.Service
         public async Task<PassengerResponse?> UpdatePassengerAsync(int id, UpdatePassengerRequest request)
         {
             // Find the existing passenger in the database
-            var passenger = await _context.Passengers
-                .FirstOrDefaultAsync(p => p.PassengerID == id);
+            var passenger = await _passengerRepository.GetByIdAsync(id);
 
             if (passenger == null)
             {
@@ -99,37 +93,22 @@ namespace Airline_Ticketing.Service
             passenger.PassportNumber = request.PassportNumber;
             passenger.Nationality = request.Nationality;
 
-            // Save the changes to the database
-            await _context.SaveChangesAsync();
+            // Save the changes to the database using repository
+            var updatedPassenger = await _passengerRepository.UpdateAsync(passenger);
 
             // Return the updated passenger as a response DTO
             return new PassengerResponse
             {
-                Id = passenger.PassengerID,
-                Name = passenger.Name,
-                DateOfBirth = passenger.DateOfBirth,
-                Nationality = passenger.Nationality
+                Id = updatedPassenger.PassengerID,
+                Name = updatedPassenger.Name,
+                DateOfBirth = updatedPassenger.DateOfBirth,
+                Nationality = updatedPassenger.Nationality
             };
-
-
         }
 
         public async Task<bool> DeletePassengerAsync(int id)
         {
-            // Find the passenger to delete
-            var passenger = await _context.Passengers
-                .FirstOrDefaultAsync(p => p.PassengerID == id);
-
-            if (passenger == null)
-            {
-                return false; // Passenger not found
-            }
-
-            // Remove the passenger from the database
-            _context.Passengers.Remove(passenger);
-            await _context.SaveChangesAsync();
-
-            return true; // Successfully deleted
+            return await _passengerRepository.DeleteAsync(id);
         }
     }
 }

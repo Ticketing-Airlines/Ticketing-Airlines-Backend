@@ -36,18 +36,14 @@ namespace Airline1.Mappings
 
             CreateMap<FlightPrice, FlightPriceResponse>();
             CreateMap<Flight, FlightResponse>()
-                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => src.Route!.OriginAirport.Name ))
-                .ForMember(dest => dest.Destination, opt => opt.MapFrom(src => src.Route!.DestinationAirport.Name));
+                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => src.Route.OriginAirport.Name ?? string.Empty))
+                .ForMember(dest => dest.Destination, opt => opt.MapFrom(src => src.Route.DestinationAirport.Name ?? string.Empty));
 
             CreateMap<FlightPrice, FlightPriceResponse>()
                 .ForMember(d => d.FlightNumber, opt => opt.MapFrom(s => s.Flight != null ? s.Flight.FlightNumber : null))
                 .ForMember(d => d.Type, opt => opt.MapFrom(s => s.Type.ToString()))
                 .ForMember(d => d.IsActive, opt => opt.MapFrom(s => (s.EffectiveTo == null || s.EffectiveTo > DateTime.UtcNow) && s.EffectiveFrom <= DateTime.UtcNow));
 
-            CreateMap<FlightStatus, FlightStatusResponse>()
-                .ForMember(dest => dest.FlightNumber, opt => opt.MapFrom(src => src.Flight != null ? src.Flight.FlightNumber : string.Empty))
-                .ForMember(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.Reason != null ? src.Reason.Code : null))
-                .ForMember(dest => dest.ReasonTitle, opt => opt.MapFrom(src => src.Reason != null ? src.Reason.Title : null));
 
             CreateMap<Flight, FlightResponse>()
                 .ForMember(dest => dest.AircraftName, opt => opt.MapFrom(src => src.Aircraft != null ? src.Aircraft.DisplayName : null))

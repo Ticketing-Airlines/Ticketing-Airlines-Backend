@@ -24,43 +24,83 @@ namespace Airline1.Tests.Controllers
         [Fact]
         public async Task Create_ReturnsCreatedAtAction_WhenValid()
         {
-            var request = new CreateAircraftRequest { Model = "A320", Manufacturer = "AirCorp" };
-            var response = new AircraftResponse { Id = 1, Model = "A320", Manufacturer = "AirCorp", Registration = "REG1" };
-            _mockService.Setup(s => s.CreateAsync(request)).ReturnsAsync(response);
-
-            var result = await _controller.Create(request);
-            var created = Assert.IsType<CreatedAtActionResult>(result);
-            Assert.Equal(nameof(_controller.GetById), created.ActionName);
-            Assert.Equal(response, created.Value);
-        }
-
-        [Fact]
-        public async Task GetAll_ReturnsOk_WithList()
-        {
-            var list = new List<AircraftResponse> {
-                new AircraftResponse { Id = 1, Model = "A320", Manufacturer = "AirCorp", Registration = "R1" },
-                new AircraftResponse { Id = 2, Model = "B737", Manufacturer = "FlyInc", Registration = "R2" }
+            var request = new CreateAircraftRequest {
+                Model = "A320",
+                Manufacturer = "AirCorp",
+                TailNumber = "TN123",
+                RegistrationNumber = "REG1"
             };
-            _mockService.Setup(s => s.GetAllAsync()).ReturnsAsync(list);
-            var result = await _controller.GetAll();
-            var ok = Assert.IsType<OkObjectResult>(result.Result);
-            var value = Assert.IsType<List<AircraftResponse>>(ok.Value);
-            Assert.Equal(2, value.Count);
+            var response = new AircraftResponse {
+                Id = 1,
+                Model = "A320",
+                Manufacturer = "AirCorp",
+                TailNumber = "TN123",
+                RegistrationNumber = "REG1", 
+                CreatedAt = System.DateTime.UtcNow,
+                UpdatedAt = null,
+                BaseAirportName = "NAIA"
+            };
+            _mockService.Setup(x => x.CreateAsync(request)).ReturnsAsync(response);
+            var result = await _controller.Create(request);
+            var createdResult = Assert.IsType<CreatedAtActionResult>(result);
+            Assert.Equal(nameof(_controller.GetById), createdResult.ActionName);
+            Assert.Equal(response, createdResult.Value);
         }
 
         [Fact]
-        public async Task GetById_ReturnsOk_WhenFound()
+        public async Task GetAll_ReturnsOkResult_WithListOfAircrafts()
         {
-            var item = new AircraftResponse { Id = 1, Model = "A320", Manufacturer = "AirCorp", Registration = "R1" };
-            _mockService.Setup(s => s.GetByIdAsync(1)).ReturnsAsync(item);
-            var result = await _controller.GetById(1);
-            var ok = Assert.IsType<OkObjectResult>(result.Result);
-            var val = Assert.IsType<AircraftResponse>(ok.Value);
-            Assert.Equal(1, val.Id);
+            var aircrafts = new List<AircraftResponse> {
+                new AircraftResponse {
+                    Id = 1,
+                    Model = "A320",
+                    Manufacturer = "AirCorp",
+                    TailNumber = "TN123",
+                    RegistrationNumber = "R1",
+                    CreatedAt = System.DateTime.UtcNow,
+                    UpdatedAt = null,
+                    BaseAirportName = "NAIA"
+                },
+                new AircraftResponse {
+                    Id = 2,
+                    Model = "B737",
+                    Manufacturer = "FlyInc",
+                    TailNumber = "TN456",
+                    RegistrationNumber = "R2",
+                    CreatedAt = System.DateTime.UtcNow,
+                    UpdatedAt = null,
+                    BaseAirportName = "NAIA"
+                }
+            };
+            _mockService.Setup(s => s.GetAllAsync()).ReturnsAsync(aircrafts);
+            var result = await _controller.GetAll();
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsType<List<AircraftResponse>>(okResult.Value);
+            Assert.Equal(2, returnValue.Count);
         }
 
         [Fact]
-        public async Task GetById_ReturnsNotFound_WhenMissing()
+        public async Task GetById_ReturnsOkResult_WhenAircraftExists()
+        {
+            var aircraft = new AircraftResponse {
+                Id = 1,
+                Model = "A320",
+                Manufacturer = "AirCorp",
+                TailNumber = "TN123",
+                RegistrationNumber = "R1",
+                CreatedAt = System.DateTime.UtcNow,
+                UpdatedAt = null,
+                BaseAirportName = "NAIA"
+            };
+            _mockService.Setup(s => s.GetByIdAsync(1)).ReturnsAsync(aircraft);
+            var result = await _controller.GetById(1);
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsType<AircraftResponse>(okResult.Value);
+            Assert.Equal(1, returnValue.Id);
+        }
+
+        [Fact]
+        public async Task GetById_ReturnsNotFound_WhenAircraftDoesNotExist()
         {
             _mockService.Setup(s => s.GetByIdAsync(99)).ReturnsAsync((AircraftResponse?)null);
             var result = await _controller.GetById(99);
@@ -68,28 +108,47 @@ namespace Airline1.Tests.Controllers
         }
 
         [Fact]
-        public async Task Update_ReturnsOk_WhenUpdated()
+        public async Task Update_ReturnsOkResult_WhenUpdateIsSuccessful()
         {
-            var req = new UpdateAircraftRequest { Model = "A321" };
-            var updated = new AircraftResponse { Id = 1, Model = "A321", Manufacturer = "AirCorp", Registration = "R1" };
-            _mockService.Setup(s => s.UpdateAsync(1, req)).ReturnsAsync(updated);
-            var result = await _controller.Update(1, req);
-            var ok = Assert.IsType<OkObjectResult>(result);
-            var val = Assert.IsType<AircraftResponse>(ok.Value);
-            Assert.Equal("A321", val.Model);
+            var request = new UpdateAircraftRequest {
+                Model = "A321",
+                Manufacturer = "AirCorp",
+                TailNumber = "TN123",
+                RegistrationNumber = "R1"
+            };
+            var updatedResponse = new AircraftResponse {
+                Id = 1,
+                Model = "A321",
+                Manufacturer = "AirCorp",
+                TailNumber = "TN123",
+                RegistrationNumber = "R1",
+                CreatedAt = System.DateTime.UtcNow,
+                UpdatedAt = System.DateTime.UtcNow,
+                BaseAirportName = "NAIA"
+            };
+            _mockService.Setup(s => s.UpdateAsync(1, request)).ReturnsAsync(updatedResponse);
+            var result = await _controller.Update(1, request);
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnValue = Assert.IsType<AircraftResponse>(okResult.Value);
+            Assert.Equal("A321", returnValue.Model);
         }
 
         [Fact]
-        public async Task Update_ReturnsNotFound_WhenMissing()
+        public async Task Update_ReturnsNotFound_WhenAircraftDoesNotExist()
         {
-            var req = new UpdateAircraftRequest { Model = "X" };
-            _mockService.Setup(s => s.UpdateAsync(99, req)).ReturnsAsync((AircraftResponse?)null);
-            var result = await _controller.Update(99, req);
+            var request = new UpdateAircraftRequest {
+                Model = "X",
+                Manufacturer = "Unknown",
+                TailNumber = "TN999",
+                RegistrationNumber = "R999"
+            };
+            _mockService.Setup(s => s.UpdateAsync(99, request)).ReturnsAsync((AircraftResponse?)null);
+            var result = await _controller.Update(99, request);
             Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
-        public async Task Delete_ReturnsNoContent_WhenDeleted()
+        public async Task Delete_ReturnsNoContent_WhenDeleteIsSuccessful()
         {
             _mockService.Setup(s => s.DeleteAsync(1)).ReturnsAsync(true);
             var result = await _controller.Delete(1);
@@ -97,7 +156,7 @@ namespace Airline1.Tests.Controllers
         }
 
         [Fact]
-        public async Task Delete_ReturnsNotFound_WhenMissing()
+        public async Task Delete_ReturnsNotFound_WhenAircraftDoesNotExist()
         {
             _mockService.Setup(s => s.DeleteAsync(99)).ReturnsAsync(false);
             var result = await _controller.Delete(99);
