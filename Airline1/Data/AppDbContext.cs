@@ -6,18 +6,23 @@ namespace Airline1.Data
 {
     public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
+        // Core domain sets
         public DbSet<Airport> Airports { get; set; }
         public DbSet<Aircraft> Aircrafts { get; set; }
         public DbSet<FlightRoute> FlightRoutes { get; set; }
+        public DbSet<User> Users { get; set; }
         public DbSet<Flight> Flights { get; set; }
-        public DbSet<FlightPrice> FlightPrices { get; set; }
         public DbSet<Passenger> Passengers { get; set; }
         public DbSet<AircraftConfiguration> AircraftConfigurations { get; set; }
         public DbSet<CabinConfigurationDetail> CabinConfigurationDetails { get; set; }
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<BookingPassenger> BookingPassengers { get; set; }
+
+        // Supporting domain sets
+        public DbSet<FlightStatus> FlightStatuses { get; set; }
         public DbSet<FlightStatusReason> FlightStatusReasons { get; set; }
-        public DbSet<User> Users { get; set; }
+        public DbSet<FlightPrice> FlightPrices { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // small sanity constraints
@@ -56,6 +61,29 @@ namespace Airline1.Data
                 .HasForeignKey(r => r.DestinationAirportId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Flight -> FlightStatus (history)
+            modelBuilder.Entity<Flight>()
+                .HasMany(f => f.Statuses)
+                .WithOne(s => s.Flight!)
+                .HasForeignKey(s => s.FlightId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // FlightStatus -> FlightStatusReason (optional)
+            modelBuilder.Entity<FlightStatus>()
+                .HasOne(s => s.Reason)
+                .WithMany()
+                .HasForeignKey(s => s.ReasonId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // index to optimize queries for latest status
+            modelBuilder.Entity<FlightStatus>()
+                .HasIndex(s => new { s.FlightId, s.EffectiveAt });
+
+            // Ensure FlightStatusReason
+            modelBuilder.Entity<FlightStatusReason>()
+                .HasIndex(r => r.Code)
+                .IsUnique();
+
             // Flight relationships
             modelBuilder.Entity<Flight>()
                 .HasMany(f => f.FlightPrices)
@@ -65,7 +93,6 @@ namespace Airline1.Data
 
             modelBuilder.Entity<FlightPrice>()
                 .HasIndex(p => new { p.FlightId, p.CabinClass, p.Type, p.EffectiveFrom });
-
 
             modelBuilder.Entity<Flight>()
                 .HasIndex(f => f.FlightNumber)
@@ -83,7 +110,6 @@ namespace Airline1.Data
                 .HasForeignKey(f => f.RouteId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // --- Relationships and Constraints ---
             modelBuilder.Entity<AircraftConfiguration>()
                 .HasMany(ac => ac.CabinDetails)
                 .WithOne()
@@ -95,6 +121,10 @@ namespace Airline1.Data
                 .WithMany()             // Booking does not have a collection of Passengers directly
                 .HasForeignKey(p => p.BookingId)
                 .OnDelete(DeleteBehavior.Restrict); // Set to RESTRICT to avoid cycles
+            
+            modelBuilder.Entity<Booking>()
+                 .Property(b => b.TotalAmount)
+                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<Booking>()
                 .HasIndex(b => b.BookingCode)
@@ -103,16 +133,6 @@ namespace Airline1.Data
             modelBuilder.Entity<BookingPassenger>()
                 .HasIndex(bp => new { bp.FlightId, bp.SeatNumber })
                 .IsUnique(); //prevents duplicate seat assignment on same flight
-            
-            // flight reason
-            modelBuilder.Entity<Flight>()
-                .HasOne(f => f.Reason)
-                .WithMany()
-                .HasForeignKey(f => f.ReasonId)
-                .OnDelete(DeleteBehavior.SetNull);
-            // common
-            modelBuilder.Entity<Flight>()
-                .HasIndex(f => f.Status);
 
             //  User 
             modelBuilder.Entity<User>()

@@ -31,7 +31,7 @@
         Grounded,
         Decommissioned
     }
-    public enum FlightStatus
+    public enum FlightStatusType
     {
         Scheduled = 0,
         Boarding = 1,

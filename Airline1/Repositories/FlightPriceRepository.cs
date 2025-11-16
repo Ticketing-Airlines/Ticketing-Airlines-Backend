@@ -52,9 +52,23 @@ namespace Airline1.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task AddAsync(FlightPrice price) => await db.FlightPrices.AddAsync(price);
-        public async Task UpdateAsync(FlightPrice price) => db.FlightPrices.Update(price);
-        public async Task DeleteAsync(FlightPrice price) => db.FlightPrices.Remove(price);
+        public async Task AddAsync(FlightPrice price)
+        {
+            await db.FlightPrices.AddAsync(price);
+            await SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(FlightPrice price)
+        {
+            db.FlightPrices.Update(price);
+            await SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(FlightPrice price)
+        {
+            db.FlightPrices.Remove(price);
+            await SaveChangesAsync();
+        }
         public async Task SaveChangesAsync() => await db.SaveChangesAsync();
     }
 }

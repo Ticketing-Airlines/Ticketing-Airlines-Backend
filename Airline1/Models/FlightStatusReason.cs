@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Airline1.Models
 {
@@ -7,16 +8,19 @@ namespace Airline1.Models
         [Key]
         public int Id { get; set; }
 
-        // short machine-friendly code, e.g. "WEATHER", "TECHNICAL"
+        // short machine-friendly code, unique
         [MaxLength(50)]
         public required string Code { get; set; } = string.Empty;
 
-        [MaxLength(500)]
-        public required string Description { get; set; } = string.Empty;
+        // human friendly title
+        [ MaxLength(200)]
+        public required string Title { get; set; } = string.Empty;
 
-        [MaxLength(100)]
-        public string? Category { get; set; }
+        // longer description or template used in notifications
+        [MaxLength(1000)]
+        public string? Description { get; set; }
 
+        // whether this reason is currently available for selection
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

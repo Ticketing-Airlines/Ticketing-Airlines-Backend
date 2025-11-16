@@ -12,10 +12,10 @@ namespace Airline1.Services
         public async Task<FlightRouteResponse> CreateAsync(CreateFlightRouteRequest request)
         {
             if (!await airportRepo.ExistsAsync(request.OriginAirportId))
-                throw new InvalidOperationException($"Origin airport id {request.OriginAirportId} not found.");
+                throw new KeyNotFoundException($"Origin airport id {request.OriginAirportId} not found.");
 
             if (!await airportRepo.ExistsAsync(request.DestinationAirportId))
-                throw new InvalidOperationException($"Destination airport id {request.DestinationAirportId} not found.");
+                throw new KeyNotFoundException($"Destination airport id {request.DestinationAirportId} not found.");
 
             var existing = await repo.GetByOriginDestinationAsync(request.OriginAirportId, request.DestinationAirportId);
             if (existing != null)
@@ -37,23 +37,23 @@ namespace Airline1.Services
         public async Task<FlightRouteResponse> GetByIdAsync(int id)
         {
             var item = await repo.GetByIdAsync(id);
-            if (item == null) return null;
-            return mapper.Map<FlightRouteResponse>(item);
+            return item == null
+                ? throw new KeyNotFoundException($"Flight route with id {id} not found.")
+                : mapper.Map<FlightRouteResponse>(item);
         }
 
         public async Task<FlightRouteResponse> UpdateAsync(int id, UpdateFlightRouteRequest request)
         {
-            var existing = await repo.GetByIdAsync(id);
-            if (existing == null) return null;
-
+            var existing = await repo.GetByIdAsync(id) ?? throw new KeyNotFoundException($"Flight route with id {id} not found.");
             if (request.OriginAirportId.HasValue && !await airportRepo.ExistsAsync(request.OriginAirportId.Value))
-                throw new InvalidOperationException($"Origin airport id {request.OriginAirportId.Value} not found.");
+                throw new KeyNotFoundException($"Origin airport id {request.OriginAirportId.Value} not found.");
 
             if (request.DestinationAirportId.HasValue && !await airportRepo.ExistsAsync(request.DestinationAirportId.Value))
-                throw new InvalidOperationException($"Destination airport id {request.DestinationAirportId.Value} not found.");
+                throw new KeyNotFoundException($"Destination airport id {request.DestinationAirportId.Value} not found.");
 
             var newOrigin = request.OriginAirportId ?? existing.OriginAirportId;
             var newDest = request.DestinationAirportId ?? existing.DestinationAirportId;
+
             var duplicate = await repo.GetByOriginDestinationAsync(newOrigin, newDest);
             if (duplicate != null && duplicate.Id != id)
                 throw new InvalidOperationException("Another route with the same origin and destination already exists.");
@@ -61,13 +61,13 @@ namespace Airline1.Services
             mapper.Map(request, existing);
             existing.UpdatedAt = DateTime.UtcNow;
             await repo.UpdateAsync(existing);
+
             return mapper.Map<FlightRouteResponse>(existing);
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var existing = await repo.GetByIdAsync(id);
-            if (existing == null) return false;
+            var existing = await repo.GetByIdAsync(id) ?? throw new KeyNotFoundException($"Flight route with id {id} not found.");
             await repo.DeleteAsync(existing);
             return true;
         }
