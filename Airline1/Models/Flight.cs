@@ -20,5 +20,16 @@ namespace Airline1.Models
         [ForeignKey("RouteId")]
         public FlightRoute? Route { get; set; }
 
+        // ✅ Each Flight can have multiple pricing records
+        public ICollection<FlightPrice>? FlightPrices { get; set; }
+
+
+        // ✅ Each Flight can have multiple statuses
+        public ICollection<FlightStatus>? Statuses { get; set; }
+
+        public int? RescheduledFromFlightId { get; set; }
+        [ForeignKey(nameof(RescheduledFromFlightId))]
+        public Flight? RescheduledFromFlight { get; set; }
+
     }
 }

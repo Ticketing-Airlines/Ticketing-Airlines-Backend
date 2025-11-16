@@ -50,6 +50,8 @@ namespace Airline1.Mappings
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => src.Route != null ? src.Route.OriginAirport.Name : null))
                 .ForMember(dest => dest.Destination, opt => opt.MapFrom(src => src.Route != null ? src.Route.DestinationAirport.Name : null));
 
+            CreateMap<FlightStatusReason, FlightStatusReasonResponse>();
+
             CreateMap<CreatePassengerRequest, Passenger>();
             CreateMap<UpdatePassengerRequest, Passenger>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

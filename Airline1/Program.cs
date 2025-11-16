@@ -109,8 +109,14 @@ builder.Services.AddScoped<IFlightService, FlightService>();
 builder.Services.AddScoped<IPassengerRepository, PassengerRepository>();
 builder.Services.AddScoped<IPassengerService, PassengerService>();
 
+builder.Services.AddScoped<IFlightStatusRepository, FlightStatusRepository>();
+builder.Services.AddScoped<IFlightStatusService, FlightStatusService>();
+
 builder.Services.AddScoped<IAircraftConfigurationRepository, AircraftConfigurationRepository>();
 builder.Services.AddScoped<IAircraftConfigurationService, AircraftConfigurationService>();
+
+builder.Services.AddScoped<IFlightStatusReasonRepository, FlightStatusReasonRepository>();
+builder.Services.AddScoped<IFlightStatusReasonService, FlightStatusReasonService>();
 
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();

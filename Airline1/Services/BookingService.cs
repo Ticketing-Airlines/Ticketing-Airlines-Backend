@@ -4,14 +4,12 @@ using Airline1.Dtos.Responses;
 using Airline1.IRepositories;
 using Airline1.IService;
 using Airline1.Models;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Airline1.Services
 {
-    public class BookingService(IBookingRepository repo, IPassengerRepository passengerRepo, AppDbContext db, IMapper mapper) : IBookingService
+    public class BookingService(IBookingRepository repo, IPassengerRepository passengerRepo, AppDbContext db) : IBookingService
     {
 
         // Helper: generate booking code
