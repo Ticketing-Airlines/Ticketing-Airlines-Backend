@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36310.24 d17.14
+VisualStudioVersion = 17.14.36310.24
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Airline_Ticketing", "Airline_Ticketing\Airline_Ticketing.csproj", "{488AFBEB-8B04-481A-8C83-83F6C253476F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Airline_Tcketing_Tests", "Airline_Tcketing_Tests\Airline_Tcketing_Tests.csproj", "{EC76DF3E-2DF8-4065-8D3E-9C0F66AF3987}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{488AFBEB-8B04-481A-8C83-83F6C253476F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{488AFBEB-8B04-481A-8C83-83F6C253476F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{488AFBEB-8B04-481A-8C83-83F6C253476F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC76DF3E-2DF8-4065-8D3E-9C0F66AF3987}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC76DF3E-2DF8-4065-8D3E-9C0F66AF3987}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC76DF3E-2DF8-4065-8D3E-9C0F66AF3987}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC76DF3E-2DF8-4065-8D3E-9C0F66AF3987}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
