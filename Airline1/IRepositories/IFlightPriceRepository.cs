@@ -20,7 +20,7 @@ namespace Airline1.IRepositories
         /// <summary>
         /// Retrieves the currently active FlightPrice record for a specific Flight, Cabin Class, and Bundle at time 't'.
         /// </summary>
-        Task<FlightPrice?> GetActivePriceAsync(int flightId, string cabinClass, int flightBundleId, DateTime t);
+        Task<FlightPrice?> GetActivePriceAsync(int flightId, string cabinClass, int flightBundleId, string passengerType,DateTime t);
 
         /// <summary>
         /// Retrieves all currently active FlightPrice records for a flight (used for presenting all bundle prices).

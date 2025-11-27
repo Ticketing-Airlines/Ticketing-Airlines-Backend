@@ -20,11 +20,12 @@ namespace Airline1.IService
         /// <summary>
         /// Retrieves the currently active base price for a specific Flight, Cabin, and Bundle ID.
         /// </summary>
-        Task<FlightPriceResponse?> GetCurrentPriceAsync(int flightId, string cabinClass, int flightBundleId, DateTime? when = null);
+        Task<FlightPriceResponse?> GetCurrentPriceAsync(int flightId, string cabinClass, int flightBundleId, string passengerType, DateTime? when = null);
 
         /// <summary>
         /// Retrieves all currently active base prices for every unique combination on a flight (for UI display).
         /// </summary>
+        /// 
         Task<IEnumerable<FlightPriceResponse>> GetActivePricesByFlightAsync(int flightId);
     }
 }

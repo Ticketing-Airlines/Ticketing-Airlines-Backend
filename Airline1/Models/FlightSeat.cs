@@ -6,7 +6,7 @@ namespace Airline1.Models
     public class FlightSeat
     {
         [Key]
-        public int FlightSeatId { get; set; } 
+        public int FlightSeatId { get; set; }
 
         public required int FlightId { get; set; }
 
@@ -22,12 +22,13 @@ namespace Airline1.Models
 
         // --- Transactional Links ---
         public int? BookingId { get; set; }
-        public int? PassengerId { get; set; }
+        public int? PassengerId { get; set; } // Note: This field is updated by the service logic
 
         // --- Pricing Link (e.g., seat add-on id) ---
         public int? SeatAddOnId { get; set; }
 
-        // --- Navigation ---
+        public BookingPassenger? BookingPassenger { get; set; } // This completes the relationship: .WithOne(fs => fs.BookingPassenger)
+
         [ForeignKey(nameof(FlightId))]
         public Flight? Flight { get; set; }
 

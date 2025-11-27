@@ -1,6 +1,4 @@
-﻿using Airline1.Dtos.Requests;
-using System.Threading.Tasks;
-
+﻿
 namespace Airline1.IService
 {
     public interface IFlightCostService
@@ -17,6 +15,7 @@ namespace Airline1.IService
             int flightId,
             string cabinClass,
             int flightBundleId,
+            string passengerType,
             IEnumerable<int> addOnPriceIds);
     }
 }

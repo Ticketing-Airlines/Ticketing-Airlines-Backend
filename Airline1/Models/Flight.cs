@@ -30,5 +30,8 @@ namespace Airline1.Models
         [ForeignKey(nameof(RescheduledFromFlightId))]
         public Flight? RescheduledFromFlight { get; set; }
 
+        // 🟢 FIX: Renamed property to 'Seats' to match the AppDbContext configuration:
+        // b.HasOne(fs => fs.Flight).WithMany(f => f.Seats)
+        public ICollection<FlightSeat>? Seats { get; set; }
     }
 }

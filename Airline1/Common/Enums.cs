@@ -40,4 +40,11 @@
         Cancelled = 4,
         Landed = 5
     }
+    public enum PassengerType
+    {
+        Adult = 0,
+        Child = 1,
+        Infant = 2,
+        Senior = 3
+    }
 }

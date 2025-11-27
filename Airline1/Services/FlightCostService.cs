@@ -8,15 +8,23 @@ namespace Airline1.Services
             int flightId,
             string cabinClass,
             int flightBundleId,
+            string passengerType, 
             IEnumerable<int> addOnPriceIds)
         {
             decimal totalCost = 0m;
+            var now = DateTime.UtcNow; // Set the effective date
 
             // 1. Get Base Flight Price (for the selected bundle and cabin class)
             var basePriceResponse = await flightPriceService.GetCurrentPriceAsync(
                 flightId,
                 cabinClass,
-                flightBundleId) ?? throw new ApplicationException($"No active base price found for FlightId {flightId}, CabinClass {cabinClass}, and BundleId {flightBundleId}.");
+                flightBundleId,
+                passengerType, 
+                now) ?? throw new ApplicationException($"No active base price found for FlightId {flightId}, CabinClass {cabinClass}, BundleId {flightBundleId}, and Type {passengerType}.");
+
+            // Add Base Price + Bundle Increment (assuming BasePriceResponse contains total base price or you calculate increment here)
+            // Based on the BookingService logic, BasePriceResponse likely contains the FlightPrice details.
+            // If the bundle increment is already included in basePriceResponse.BasePrice, use it directly.
             totalCost += basePriceResponse.BasePrice;
 
             // 2. Get Total Add-On Price (sum of selected extras)

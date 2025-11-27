@@ -5,10 +5,7 @@ using Airline1.IService;
 using Airline1.Models;
 using Airline1.Repositories;
 using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace Airline1.Services
 {
@@ -20,7 +17,7 @@ namespace Airline1.Services
             var when = req.EffectiveFrom ?? DateTime.UtcNow;
 
             // 1. Find and expire the active price for this combination
-            var activePrice = await repo.GetActivePriceAsync(req.FlightId, req.CabinClass, req.FlightBundleId, when);
+            var activePrice = await repo.GetActivePriceAsync(req.FlightId, req.CabinClass, req.FlightBundleId, req.PassengerType, when);
 
             if (activePrice != null)
             {
@@ -80,10 +77,10 @@ namespace Airline1.Services
         }
 
         // System/User Function: Retrieve the active base price for a specific bundle.
-        public async Task<FlightPriceResponse?> GetCurrentPriceAsync(int flightId, string cabinClass, int flightBundleId, DateTime? when = null)
+        public async Task<FlightPriceResponse?> GetCurrentPriceAsync(int flightId, string cabinClass, int flightBundleId, string passengerType, DateTime? when = null)
         {
             var t = when ?? DateTime.UtcNow;
-            var activePrice = await repo.GetActivePriceAsync(flightId, cabinClass, flightBundleId, t);
+            var activePrice = await repo.GetActivePriceAsync(flightId, cabinClass, flightBundleId, passengerType, t);
             return activePrice == null ? null : mapper.Map<FlightPriceResponse>(activePrice);
         }
 

@@ -3,7 +3,8 @@ using Airline1.Models;
 using Airline1.Dtos.Requests;
 using Airline1.Dtos.Responses;
 using System;
-using System.Linq; // Added for convenience in potential complex mappings
+using System.Linq;
+using System.Collections.Generic; // Added for clarity, though System.Linq covers it
 
 namespace Airline1.Mappings
 {
@@ -11,7 +12,7 @@ namespace Airline1.Mappings
     {
         public MappingProfile()
         {
-            // ... (Existing Mappings for Airport, Aircraft, FlightRoute, Flight, FlightBundle, FlightStatus, Passenger, Configuration, Seat, Booking) ...
+            // ... (Existing Mappings for Aircraft, FlightRoutes, Flights, FlightBundles, FlightPrice, etc.) ...
 
             // Aircraft mappings (existing)
             CreateMap<CreateAircraftRequest, Aircraft>();
@@ -38,37 +39,21 @@ namespace Airline1.Mappings
             CreateMap<CreateFlightBundleRequest, FlightBundle>();
             CreateMap<UpdateFlightBundleRequest, FlightBundle>();
 
-            // --------------------------------------------------------------------------
-            // ⭐ FLIGHT PRICE MAPPING (UPDATED) ⭐
-            // The obsolete 'Type' is replaced by 'FlightBundleId' and 'BundleName'.
-            // Mappings are added for CreateRequest to Model.
-            // --------------------------------------------------------------------------
+            // ⭐ FLIGHT PRICE MAPPING ⭐
             CreateMap<CreateFlightPriceRequest, FlightPrice>();
             CreateMap<UpdateFlightPriceRequest, FlightPrice>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<FlightPrice, FlightPriceResponse>()
-                // Remove obsolete Type mapping
-                // .ForMember(d => d.Type, opt => opt.MapFrom(s => s.Type.ToString()))
-
-                // Add new BundleName mapping using the navigation property
                 .ForMember(dest => dest.BundleName, opt => opt.MapFrom(src => src.FlightBundle != null ? src.FlightBundle.Name : null))
-
-                // Update FlightNumber mapping (optional, but good practice if available)
                 .ForMember(d => d.FlightNumber, opt => opt.MapFrom(s => s.Flight != null ? s.Flight.FlightNumber : null))
-
-                // Keep IsActive convenience mapping
                 .ForMember(d => d.IsActive, opt => opt.MapFrom(s => (s.EffectiveTo == null || s.EffectiveTo > DateTime.UtcNow) && s.EffectiveFrom <= DateTime.UtcNow));
-
-            // --------------------------------------------------------------------------
 
             // Flight mapping (existing)
             CreateMap<Flight, FlightResponse>()
                 .ForMember(dest => dest.AircraftName, opt => opt.MapFrom(src => src.Aircraft != null ? src.Aircraft.DisplayName : null))
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => src.Route != null ? src.Route.OriginAirport.Name : null))
                 .ForMember(dest => dest.Destination, opt => opt.MapFrom(src => src.Route != null ? src.Route.DestinationAirport.Name : null));
-
-            // ... (All other existing mappings) ...
 
             // FlightStatus (existing)
             CreateMap<FlightStatus, FlightStatusResponse>()
@@ -101,16 +86,10 @@ namespace Airline1.Mappings
             CreateMap<CabinConfigurationDetail, CabinDetailResponse>();
 
             // Seat Mappings (existing)
-            CreateMap<Airline1.Dtos.Requests.CreateSeatRequest, Airline1.Models.Seat>();
-            CreateMap<Airline1.Dtos.Requests.UpdateSeatRequest, Airline1.Models.Seat>()
+            CreateMap<CreateSeatRequest, Seat>();
+            CreateMap<UpdateSeatRequest, Seat>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            CreateMap<Airline1.Models.Seat, Airline1.Dtos.Responses.SeatResponse>();
-
-            // Booking Mappings (existing)
-            CreateMap<CreateBookingRequest, Booking>();
-            CreateMap<PassengerForBookingDto, BookingPassenger>();
-            CreateMap<Booking, BookingResponse>();
-            CreateMap<BookingPassenger, BookingPassengerResponse>();
+            CreateMap<Seat, SeatResponse>();
 
             // FlightAddOn Mappings (existing)
             CreateMap<CreateFlightAddOnRequest, FlightAddOn>();
@@ -128,6 +107,37 @@ namespace Airline1.Mappings
             CreateMap<UpdateUserRequest, User>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<User, UserResponse>();
+
+            // --------------------------------------------------------------------------
+            // ⭐ BOOKING MAPPINGS (FIXED AND UPDATED) ⭐
+            // The mapping for 'PassengerForBookingDto' has been replaced by 'CreateBookingPassengerRequest' 
+            // to resolve the namespace/type error, reflecting the likely intended DTO structure for the POST body.
+            // --------------------------------------------------------------------------
+
+            // Booking Mappings
+            CreateMap<CreateBookingRequest, Booking>()
+                .ForMember(dest => dest.Pnr, opt => opt.Ignore())
+                .ForMember(dest => dest.TotalPrice, opt => opt.Ignore())
+                .ForMember(dest => dest.Passengers, opt => opt.MapFrom(src => src.Passengers));
+
+            // FIX: Replace the unknown DTO with the known DTO used in other contexts (CreateBookingPassengerRequest)
+            CreateMap<CreateBookingPassengerRequest, BookingPassenger>()
+                .ForMember(dest => dest.BookingPassengerId, opt => opt.Ignore())
+                .ForMember(dest => dest.BookingId, opt => opt.Ignore())
+                .ForMember(dest => dest.AddOns, opt => opt.Ignore());
+
+            CreateMap<Booking, BookingResponse>()
+                .ForMember(dest => dest.FlightBundleName, opt => opt.MapFrom(src => src.FlightBundle != null ? src.FlightBundle.Name : null))
+                .ForMember(dest => dest.Passengers, opt => opt.MapFrom(src => src.Passengers));
+
+            CreateMap<BookingPassenger, BookingPassengerResponse>()
+                .ForMember(dest => dest.SeatNumber, opt => opt.MapFrom(src => src.FlightSeat!.Seat!.SeatNumber))
+                .ForMember(dest => dest.AddOns, opt => opt.MapFrom(src => src.AddOns));
+
+            // BookingAddOn Mappings
+            CreateMap<BookingAddOn, BookingAddOnResponse>()
+                .ForMember(dest => dest.AddOnName, opt => opt.MapFrom(src => src.AddOnPrice!.AddOn!.Name))
+                .ForMember(dest => dest.AddOnCode, opt => opt.MapFrom(src => src.AddOnPrice!.AddOn!.Code));
         }
     }
 }

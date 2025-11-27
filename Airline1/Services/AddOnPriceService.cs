@@ -4,10 +4,6 @@ using Airline1.IRepositories;
 using Airline1.IService;
 using Airline1.Models;
 using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Airline1.Services
 {
