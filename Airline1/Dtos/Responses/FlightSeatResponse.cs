@@ -11,5 +11,7 @@
         public int? BookingId { get; set; }
         public int? PassengerId { get; set; }
         public int? SeatAddOnId { get; set; }
+        public decimal? PriceAmount { get; set; }
+        public string? PriceCurrency { get; set; }
     }
 }
