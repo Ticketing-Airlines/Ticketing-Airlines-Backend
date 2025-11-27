@@ -4,6 +4,7 @@ using Airline1.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Airline1.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251126094654_AddFlightBundleTable")]
+    partial class AddFlightBundleTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -337,54 +340,6 @@ namespace Airline1.Migrations
                     b.ToTable("Flights");
                 });
 
-            modelBuilder.Entity("Airline1.Models.FlightAddOn", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Category")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<bool>("IsPremiumSeatType")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int?>("PieceCount")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("WeightKg")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.ToTable("FlightAddOns");
-                });
-
             modelBuilder.Entity("Airline1.Models.FlightBundle", b =>
                 {
                     b.Property<int>("Id")
@@ -523,58 +478,6 @@ namespace Airline1.Migrations
                         .IsUnique();
 
                     b.ToTable("FlightRoutes");
-                });
-
-            modelBuilder.Entity("Airline1.Models.FlightSeat", b =>
-                {
-                    b.Property<int>("FlightSeatId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FlightSeatId"));
-
-                    b.Property<int?>("BookingId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("FlightId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PassengerId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SeatAddOnId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SeatClass")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("SeatId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("FlightSeatId");
-
-                    b.HasIndex("SeatAddOnId");
-
-                    b.HasIndex("SeatId");
-
-                    b.HasIndex("FlightId", "SeatId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_FlightSeat_Flight_Seat");
-
-                    b.ToTable("FlightSeats");
                 });
 
             modelBuilder.Entity("Airline1.Models.FlightStatus", b =>
@@ -973,31 +876,6 @@ namespace Airline1.Migrations
                     b.Navigation("DestinationAirport");
 
                     b.Navigation("OriginAirport");
-                });
-
-            modelBuilder.Entity("Airline1.Models.FlightSeat", b =>
-                {
-                    b.HasOne("Airline1.Models.Flight", "Flight")
-                        .WithMany()
-                        .HasForeignKey("FlightId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Airline1.Models.FlightAddOn", "SeatAddOn")
-                        .WithMany()
-                        .HasForeignKey("SeatAddOnId");
-
-                    b.HasOne("Airline1.Models.Seat", "Seat")
-                        .WithMany()
-                        .HasForeignKey("SeatId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Flight");
-
-                    b.Navigation("Seat");
-
-                    b.Navigation("SeatAddOn");
                 });
 
             modelBuilder.Entity("Airline1.Models.FlightStatus", b =>
