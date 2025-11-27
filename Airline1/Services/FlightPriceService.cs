@@ -3,41 +3,34 @@ using Airline1.Dtos.Responses;
 using Airline1.IRepositories;
 using Airline1.IService;
 using Airline1.Models;
+using Airline1.Repositories;
 using AutoMapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Airline1.Services
 {
     public class FlightPriceService(IFlightPriceRepository repo, IMapper mapper) : IFlightPriceService
     {
+        // Admin Function: Creates a new price record, automatically expiring the currently active one.
         public async Task<FlightPriceResponse> CreateAsync(CreateFlightPriceRequest req)
         {
             var when = req.EffectiveFrom ?? DateTime.UtcNow;
-            var type = req.Type?.Equals("Promo", StringComparison.OrdinalIgnoreCase) == true
-                ? FlightPriceType.Promo : FlightPriceType.Standard;
 
-            // Optionally expire existing standard record when creating a new standard price:
-            if (type == FlightPriceType.Standard)
+            // 1. Find and expire the active price for this combination
+            var activePrice = await repo.GetActivePriceAsync(req.FlightId, req.CabinClass, req.FlightBundleId, when);
+
+            if (activePrice != null)
             {
-                var activeStandard = await repo.GetActiveStandardAsync(req.FlightId, req.CabinClass, when);
-                if (activeStandard != null)
-                {
-                    // expire it one tick before new effective start
-                    activeStandard.EffectiveTo = when.AddTicks(-1);
-                    await repo.UpdateAsync(activeStandard);
-                }
+                activePrice.EffectiveTo = when.AddTicks(-1);
+                await repo.UpdateAsync(activePrice);
             }
 
-            var entity = new FlightPrice
-            {
-                FlightId = req.FlightId,
-                CabinClass = req.CabinClass,
-                BasePrice = req.BasePrice,
-                Type = type,
-                EffectiveFrom = req.EffectiveFrom ?? DateTime.UtcNow,
-                EffectiveTo = req.EffectiveTo,
-                UpdatedBy = req.UpdatedBy,
-                Note = req.Note
-            };
+            // 2. Create the new price record
+            var entity = mapper.Map<FlightPrice>(req);
+            entity.EffectiveFrom = when;
 
             await repo.AddAsync(entity);
             await repo.SaveChangesAsync();
@@ -45,6 +38,7 @@ namespace Airline1.Services
             return mapper.Map<FlightPriceResponse>(entity);
         }
 
+        // Admin Function: Updates properties (like price or future dates).
         public async Task<FlightPriceResponse?> UpdateAsync(int id, UpdateFlightPriceRequest req)
         {
             var existing = await repo.GetByIdAsync(id);
@@ -53,7 +47,9 @@ namespace Airline1.Services
             if (req.BasePrice.HasValue) existing.BasePrice = req.BasePrice.Value;
             if (req.EffectiveFrom.HasValue) existing.EffectiveFrom = req.EffectiveFrom.Value;
             if (req.EffectiveTo.HasValue) existing.EffectiveTo = req.EffectiveTo.Value;
+
             existing.UpdatedBy = req.UpdatedBy ?? existing.UpdatedBy;
+            existing.Note = req.Note ?? existing.Note;
 
             await repo.UpdateAsync(existing);
             await repo.SaveChangesAsync();
@@ -61,41 +57,41 @@ namespace Airline1.Services
             return mapper.Map<FlightPriceResponse>(existing);
         }
 
+        // Admin Function: Deletes a price record.
         public async Task<bool> DeleteAsync(int id)
         {
-            var existing = await repo.GetByIdAsync(id);
-            if (existing == null) return false;
-            await repo.DeleteAsync(existing);
+            await repo.DeleteAsync(id);
             await repo.SaveChangesAsync();
             return true;
         }
 
+        // Admin Function: Get all price records (history and future).
+        public async Task<IEnumerable<FlightPriceResponse>> GetHistoryAsync(int flightId)
+        {
+            var list = await repo.GetAllByFlightAsync(flightId);
+            return mapper.Map<IEnumerable<FlightPriceResponse>>(list);
+        }
+
+        // System/User Function: Get single record by ID.
         public async Task<FlightPriceResponse?> GetByIdAsync(int id)
         {
             var p = await repo.GetByIdAsync(id);
             return p == null ? null : mapper.Map<FlightPriceResponse>(p);
         }
 
-        public async Task<IEnumerable<FlightPriceResponse>> GetHistoryAsync(int flightId, string cabinClass)
-        {
-            var list = await repo.GetByFlightAndCabinAsync(flightId, cabinClass);
-            return mapper.Map<IEnumerable<FlightPriceResponse>>(list);
-        }
-
-        public async Task<FlightPriceResponse?> GetCurrentPriceAsync(int flightId, string cabinClass, DateTime? when = null)
+        // System/User Function: Retrieve the active base price for a specific bundle.
+        public async Task<FlightPriceResponse?> GetCurrentPriceAsync(int flightId, string cabinClass, int flightBundleId, DateTime? when = null)
         {
             var t = when ?? DateTime.UtcNow;
+            var activePrice = await repo.GetActivePriceAsync(flightId, cabinClass, flightBundleId, t);
+            return activePrice == null ? null : mapper.Map<FlightPriceResponse>(activePrice);
+        }
 
-            // 1) prefer active promo
-            var promo = await repo.GetActivePromoAsync(flightId, cabinClass, t);
-            if (promo != null) return mapper.Map<FlightPriceResponse>(promo);
-
-            // 2) fallback to active standard
-            var standard = await repo.GetActiveStandardAsync(flightId, cabinClass, t);
-            if (standard != null) return mapper.Map<FlightPriceResponse>(standard);
-
-            // 3) no price found
-            return null;
+        // System/User Function: Retrieve all active prices (used for UI).
+        public async Task<IEnumerable<FlightPriceResponse>> GetActivePricesByFlightAsync(int flightId)
+        {
+            var activePrices = await repo.GetActivePricesByFlightAsync(flightId);
+            return mapper.Map<IEnumerable<FlightPriceResponse>>(activePrices);
         }
     }
 }

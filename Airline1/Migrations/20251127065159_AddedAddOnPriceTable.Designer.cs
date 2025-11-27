@@ -4,6 +4,7 @@ using Airline1.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Airline1.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251127065159_AddedAddOnPriceTable")]
+    partial class AddedAddOnPriceTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,7 +48,6 @@ namespace Airline1.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("PriceAmount")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18, 2)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -61,9 +63,7 @@ namespace Airline1.Migrations
 
                     b.HasIndex("AddOnId");
 
-                    b.HasIndex("FlightId", "AddOnId", "ValidFrom")
-                        .IsUnique()
-                        .HasDatabaseName("IX_AddOnPrice_Flight_AddOn_Effective");
+                    b.HasIndex("FlightId");
 
                     b.ToTable("AddOnPrices");
                 });
@@ -491,7 +491,6 @@ namespace Airline1.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("BasePrice")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(10,2)");
 
                     b.Property<string>("CabinClass")
@@ -505,14 +504,14 @@ namespace Airline1.Migrations
                     b.Property<DateTime?>("EffectiveTo")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("FlightBundleId")
-                        .HasColumnType("int");
-
                     b.Property<int>("FlightId")
                         .HasColumnType("int");
 
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(100)
@@ -520,10 +519,7 @@ namespace Airline1.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FlightBundleId");
-
-                    b.HasIndex("FlightId", "CabinClass", "FlightBundleId", "EffectiveFrom")
-                        .HasDatabaseName("IX_FlightPrice_Temporal_Bundle");
+                    b.HasIndex("FlightId", "CabinClass", "Type", "EffectiveFrom");
 
                     b.ToTable("FlightPrices");
                 });
@@ -914,7 +910,7 @@ namespace Airline1.Migrations
                     b.HasOne("Airline1.Models.FlightAddOn", "AddOn")
                         .WithMany()
                         .HasForeignKey("AddOnId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Airline1.Models.Flight", "Flight")
@@ -1016,12 +1012,6 @@ namespace Airline1.Migrations
 
             modelBuilder.Entity("Airline1.Models.FlightPrice", b =>
                 {
-                    b.HasOne("Airline1.Models.FlightBundle", "FlightBundle")
-                        .WithMany()
-                        .HasForeignKey("FlightBundleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Airline1.Models.Flight", "Flight")
                         .WithMany("FlightPrices")
                         .HasForeignKey("FlightId")
@@ -1029,8 +1019,6 @@ namespace Airline1.Migrations
                         .IsRequired();
 
                     b.Navigation("Flight");
-
-                    b.Navigation("FlightBundle");
                 });
 
             modelBuilder.Entity("Airline1.Models.FlightRoute", b =>

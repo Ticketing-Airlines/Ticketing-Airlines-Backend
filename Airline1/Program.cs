@@ -131,6 +131,9 @@ builder.Services.AddScoped<IFlightSeatService, FlightSeatService>();
 builder.Services.AddScoped<IFlightAddOnRepository, FlightAddOnRepository>();
 builder.Services.AddScoped<IFlightAddOnService, FlightAddOnService>();
 
+builder.Services.AddScoped<IAddOnPriceRepository, AddOnPriceRepository>();
+builder.Services.AddScoped<IAddOnPriceService, AddOnPriceService>();
+
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 

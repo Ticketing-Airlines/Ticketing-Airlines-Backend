@@ -1,59 +1,168 @@
 ﻿using Airline1.Dtos.Requests;
+using Airline1.Dtos.Responses;
 using Airline1.IService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Airline1.Controllers
 {
+    // Use the component name as the base route (e.g., /api/FlightSeat)
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("api")]
-    public class FlightSeatsController(IFlightSeatService service) : ControllerBase
+    public class FlightSeatController(IFlightSeatService flightSeatService) : ControllerBase
     {
-
-        // Admin init
-        [HttpPost("admin/flightseats/initialize/{flightId:int}")]
-        public async Task<IActionResult> Initialize(int flightId)
+        // -----------------------------------------------------------
+        // 1. GET: Seat Map Generation (Client-Facing Read)
+        // -----------------------------------------------------------
+        /// <summary>
+        /// Retrieves the complete seat map for a flight, including status and real-time price.
+        /// </summary>
+        /// <param name="flightId">The ID of the flight to get the seat map for.</param>
+        [HttpGet("flight/{flightId:int}")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<FlightSeatResponse>))]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetSeatMap(int flightId)
         {
-            await service.InitializeSeatsForFlightAsync(flightId);
-            return Ok(new { Message = $"Flight seats initialized for flight {flightId}" });
+            var seatMap = await flightSeatService.GetByFlightAsync(flightId);
+
+            if (seatMap == null || !seatMap.Any())
+            {
+                // Note: The service should ideally throw KeyNotFoundException if the flight itself is missing.
+                return NotFound($"No seat inventory found for Flight ID {flightId}.");
+            }
+
+            return Ok(seatMap);
         }
 
-        // Reserve (booking/payment block)
-        [HttpPut("flightseats/{id:int}/reserve")]
-        public async Task<IActionResult> Reserve(int id, [FromBody] ReserveFlightSeatRequest request)
-        {
-            var res = await service.ReserveSeatAsync(id, request);
-            return Ok(res);
-        }
-
-        // Assign (check-in)
-        [HttpPut("flightseats/{id:int}/assign")]
-        public async Task<IActionResult> Assign(int id, [FromBody] AssignFlightSeatRequest request)
-        {
-            var res = await service.AssignSeatAsync(id, request);
-            return Ok(res);
-        }
-
-        // Block (admin)
-        [HttpPut("flightseats/{id:int}/block")]
-        public async Task<IActionResult> Block(int id, [FromBody] BlockFlightSeatRequest request)
-        {
-            var res = await service.BlockSeatAsync(id, request);
-            return Ok(res);
-        }
-
-        // Helper reads
-        [HttpGet("flightseats/flight/{flightId:int}")]
-        public async Task<IActionResult> GetByFlight(int flightId)
-        {
-            var list = await service.GetByFlightAsync(flightId);
-            return Ok(list);
-        }
-
-        [HttpGet("flightseats/{id:int}")]
+        // -----------------------------------------------------------
+        // 2. GET: Single Seat Status/Price Lookup (Helper Read)
+        // -----------------------------------------------------------
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(200, Type = typeof(FlightSeatResponse))]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetById(int id)
         {
-            var item = await service.GetByIdAsync(id);
-            return Ok(item);
+            try
+            {
+                var item = await flightSeatService.GetByIdAsync(id);
+                return Ok(item);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
+        // -----------------------------------------------------------
+        // 3. POST: Reserve Seat (Transactional Action)
+        // -----------------------------------------------------------
+        /// <summary>
+        /// Reserves an available seat (Available -> Booked).
+        /// </summary>
+        /// <param name="flightSeatId">The ID of the specific FlightSeat.</param>
+        [HttpPost("{flightSeatId:int}/reserve")]
+        [ProducesResponseType(200, Type = typeof(FlightSeatResponse))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> ReserveSeat(int flightSeatId, [FromBody] ReserveFlightSeatRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            try
+            {
+                var response = await flightSeatService.ReserveSeatAsync(flightSeatId, request);
+                return Ok(response);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound($"FlightSeat {flightSeatId} not found.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Catches errors like "Seat is not Available"
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        // -----------------------------------------------------------
+        // 4. POST: Assign Seat (Transactional Action)
+        // -----------------------------------------------------------
+        /// <summary>
+        /// Assigns a seat to a passenger during check-in (Booked -> CheckedIn).
+        /// </summary>
+        /// <param name="flightSeatId">The ID of the specific FlightSeat.</param>
+        [HttpPost("{flightSeatId:int}/assign")]
+        [ProducesResponseType(200, Type = typeof(FlightSeatResponse))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> AssignSeat(int flightSeatId, [FromBody] AssignFlightSeatRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            try
+            {
+                var response = await flightSeatService.AssignSeatAsync(flightSeatId, request);
+                return Ok(response);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound($"FlightSeat {flightSeatId} not found.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Catches errors like "Seat must be Booked before assigning"
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        // -----------------------------------------------------------
+        // 5. POST: Block Seat (Admin Action)
+        // -----------------------------------------------------------
+        /// <summary>
+        /// Blocks a seat from selection for administrative reasons (Any Status -> Blocked).
+        /// </summary>
+        /// <param name="flightSeatId">The ID of the specific FlightSeat.</param>
+        [HttpPost("{flightSeatId:int}/block")]
+        [ProducesResponseType(200, Type = typeof(FlightSeatResponse))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> Block(int flightSeatId, [FromBody] BlockFlightSeatRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            try
+            {
+                var response = await flightSeatService.BlockSeatAsync(flightSeatId, request);
+                return Ok(response);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound($"FlightSeat {flightSeatId} not found.");
+            }
+        }
+
+
+        // -----------------------------------------------------------
+        // 6. POST: Initialize Seats (Internal/Setup Action)
+        // -----------------------------------------------------------
+        /// <summary>
+        /// Initializes the FlightSeat inventory for a new flight.
+        /// </summary>
+        [HttpPost("initialize/{flightId:int}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> InitializeSeats(int flightId)
+        {
+            try
+            {
+                await flightSeatService.InitializeSeatsForFlightAsync(flightId);
+                // Standard REST response for a successful operation with no data returned
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Catches if the Flight/Aircraft doesn't exist
+                return NotFound(new { Error = ex.Message });
+            }
         }
     }
 }

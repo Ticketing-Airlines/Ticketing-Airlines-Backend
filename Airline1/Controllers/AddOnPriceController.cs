@@ -1,0 +1,113 @@
+﻿using Airline1.Dtos.Requests;
+using Airline1.Dtos.Responses;
+using Airline1.IService;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Airline1.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AddOnPriceController(IAddOnPriceService addOnPriceService) : ControllerBase
+    {
+        // -----------------------------------------------------------
+        // 1. GET: Active Price Lookup (Used by Booking Engine)
+        // -----------------------------------------------------------
+        /// <summary>
+        /// Retrieves the currently active price for a specific add-on on a specific flight.
+        /// </summary>
+        /// <param name="flightId">The ID of the flight.</param>
+        /// <param name="addOnId">The ID of the FlightAddOn product (e.g., Exit Row Seat).</param>
+        [HttpGet("active")]
+        [ProducesResponseType(200, Type = typeof(decimal))]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetActivePrice(int flightId, int addOnId)
+        {
+            var price = await addOnPriceService.GetCurrentPriceAsync(flightId, addOnId);
+
+            if (price == null)
+            {
+                // Return 404 if no active price rule is found for the combination
+                return NotFound($"No active price found for FlightId {flightId} and AddOnId {addOnId}.");
+            }
+
+            return Ok(price.Value);
+        }
+
+        // -----------------------------------------------------------
+        // 2. GET: Get Rule By ID (Admin/Audit Use)
+        // -----------------------------------------------------------
+        [HttpGet("{id}")]
+        [ProducesResponseType(200, Type = typeof(AddOnPriceResponse))]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetPriceRule(int id)
+        {
+            var item = await addOnPriceService.GetByIdAsync(id);
+            return item == null ? NotFound() : Ok(item);
+        }
+
+        // -----------------------------------------------------------
+        // 3. POST: Create Price Rule (Admin Use)
+        // -----------------------------------------------------------
+        [HttpPost]
+        [ProducesResponseType(201, Type = typeof(AddOnPriceResponse))]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> CreatePriceRule([FromBody] CreateAddOnPriceRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var response = await addOnPriceService.CreateAsync(request);
+                return CreatedAtAction(nameof(GetPriceRule), new { id = response.Id }, response);
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Catches overlap or dependency errors from the service layer
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        // -----------------------------------------------------------
+        // 4. PUT: Update Price Rule (Admin Use)
+        // -----------------------------------------------------------
+        [HttpPut("{id}")]
+        [ProducesResponseType(200, Type = typeof(AddOnPriceResponse))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> UpdatePriceRule(int id, [FromBody] UpdateAddOnPriceRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var response = await addOnPriceService.UpdateAsync(id, request);
+                return response == null ? NotFound() : Ok(response);
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Catches overlap errors from the service layer
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        // -----------------------------------------------------------
+        // 5. DELETE: Delete Price Rule (Admin Use)
+        // -----------------------------------------------------------
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> DeletePriceRule(int id)
+        {
+            var success = await addOnPriceService.DeleteAsync(id);
+
+            // 204 No Content is the standard response for successful deletion
+            return success ? NoContent() : NotFound();
+        }
+    }
+}
