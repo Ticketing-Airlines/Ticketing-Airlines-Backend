@@ -2,6 +2,9 @@
 using Airline1.Dtos.Responses;
 using Airline1.IService;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System;
 
 namespace Airline1.Controllers
 {
@@ -34,7 +37,23 @@ namespace Airline1.Controllers
         }
 
         // -----------------------------------------------------------
-        // 2. GET: Get Rule By ID (Admin/Audit Use)
+        // ⭐ 2. GET: Price History (New Admin/Audit Endpoint) ⭐
+        // -----------------------------------------------------------
+        /// <summary>
+        /// Retrieves all historical and future price rules for a specific Add-On product.
+        /// </summary>
+        /// <param name="addOnId">The ID of the FlightAddOn product.</param>
+        [HttpGet("history/{addOnId}")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<AddOnPriceResponse>))]
+        public async Task<IActionResult> GetPriceHistory(int addOnId)
+        {
+            // Note: Since this fetches historical data, we return 200 OK even if the list is empty.
+            var history = await addOnPriceService.GetHistoryAsync(addOnId);
+            return Ok(history);
+        }
+
+        // -----------------------------------------------------------
+        // 3. GET: Get Rule By ID (Admin/Audit Use)
         // -----------------------------------------------------------
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(AddOnPriceResponse))]
@@ -46,7 +65,7 @@ namespace Airline1.Controllers
         }
 
         // -----------------------------------------------------------
-        // 3. POST: Create Price Rule (Admin Use)
+        // 4. POST: Create Price Rule (Admin Use)
         // -----------------------------------------------------------
         [HttpPost]
         [ProducesResponseType(201, Type = typeof(AddOnPriceResponse))]
@@ -71,7 +90,7 @@ namespace Airline1.Controllers
         }
 
         // -----------------------------------------------------------
-        // 4. PUT: Update Price Rule (Admin Use)
+        // 5. PUT: Update Price Rule (Admin Use)
         // -----------------------------------------------------------
         [HttpPut("{id}")]
         [ProducesResponseType(200, Type = typeof(AddOnPriceResponse))]
@@ -97,7 +116,7 @@ namespace Airline1.Controllers
         }
 
         // -----------------------------------------------------------
-        // 5. DELETE: Delete Price Rule (Admin Use)
+        // 6. DELETE: Delete Price Rule (Admin Use)
         // -----------------------------------------------------------
         [HttpDelete("{id}")]
         [ProducesResponseType(204)]
