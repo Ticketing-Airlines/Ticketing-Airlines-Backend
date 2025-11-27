@@ -4,318 +4,224 @@ using Airline1.Dtos.Responses;
 using Airline1.IRepositories;
 using Airline1.IService;
 using Airline1.Models;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Airline1.Services
 {
-    public class BookingService(IBookingRepository repo, IPassengerRepository passengerRepo, AppDbContext db) : IBookingService
+    public class BookingService(
+        IBookingRepository bookingRepo,
+        IFlightPriceService flightPriceService,
+        IAddOnPriceService addOnPriceService,
+        IFlightSeatService flightSeatService,
+        IFlightBundleRepository flightBundleRepo,
+        IAddOnPriceRepository addOnPriceRepo,
+        AppDbContext db,
+        IMapper mapper) : IBookingService
     {
-
-        // Helper: generate booking code
-        private static string GenerateBookingCode()
+        // Private method to compute the total price before creating the booking
+        public async Task<decimal> CalculateTotalCostAsync(CreateBookingRequest request)
         {
-            var rand = RandomNumberGenerator.GetInt32(100000, 999999);
-            return $"BK{DateTime.UtcNow:yyMMdd}{rand}";
+            decimal totalCost = 0m;
+            var now = DateTime.UtcNow;
+
+            // 1. Get Flight Bundle Price Increment
+            var bundle = await flightBundleRepo.GetByIdAsync(request.FlightBundleId)
+                ?? throw new KeyNotFoundException($"FlightBundle with ID {request.FlightBundleId} not found.");
+
+            // 2. Calculate Base Fare per passenger type
+            foreach (var passengerRequest in request.Passengers)
+            {
+                var priceResponse = await flightPriceService.GetCurrentPriceAsync(
+                    request.FlightId,
+                    "Economy", // Assuming default CabinClass for now
+                    request.FlightBundleId,
+                    passengerRequest.PassengerType,
+                    now) ?? throw new InvalidOperationException($"Base price not found for Flight {request.FlightId}, Bundle {request.FlightBundleId}, Type {passengerRequest.PassengerType}.");
+
+                // Base price + Bundle Increment
+                decimal passengerBaseFare = priceResponse.BasePrice + bundle.PriceIncrement;
+                totalCost += passengerBaseFare;
+
+                // 3. Calculate Add-Ons (Baggage, Meals, etc.)
+                if (passengerRequest.AddOnPriceIds.Count != 0)
+                {
+                    // Call the service to calculate the active cost of the requested add-ons
+                    totalCost += await addOnPriceService.GetTotalCostByIdsAsync(passengerRequest.AddOnPriceIds);
+                }
+
+                // 4. Calculate Seat Cost (The FlightSeat.PriceAmount is what links to the cost)
+                if (passengerRequest.FlightSeatId.HasValue)
+                {
+                    // NOTE: This call only retrieves the seat. The actual reservation logic and checks happen in CreateAsync.
+                    var fs = await flightSeatService.GetByIdAsync(passengerRequest.FlightSeatId.Value)
+                        ?? throw new KeyNotFoundException($"FlightSeat with ID {passengerRequest.FlightSeatId.Value} not found.");
+
+                    if (fs.PriceAmount.HasValue)
+                    {
+                        totalCost += fs.PriceAmount.Value;
+                    }
+                }
+            }
+
+            return totalCost;
         }
 
-        public async Task<BookingResponse?> CreateBookingAsync(CreateBookingRequest request)
+        public async Task<BookingResponse> CreateAsync(CreateBookingRequest request)
         {
-            // validate flight exists
-            var flight = await db.Flights.FindAsync(request.FlightId);
-            if (flight == null) return null;
-
-            // transaction scope
-            using var tx = await db.Database.BeginTransactionAsync();
+            // Use an explicit transaction to ensure all database writes succeed or fail together
+            await using var transaction = await db.Database.BeginTransactionAsync();
             try
             {
-                // check seat availability for each requested seat
-                foreach (var p in request.Passengers)
-                {
-                    var seat = p.SeatNumber.Trim().ToUpper();
-                    var occupied = await db.BookingPassengers
-                        .AnyAsync(bp => bp.FlightId == request.FlightId && bp.SeatNumber == seat && bp.Booking.Status != BookingStatus.Cancelled);
-                    if (occupied)
-                        throw new InvalidOperationException($"Seat {seat} is already taken.");
-                }
+                // --- 1. Calculate Total Price and Basic Validation ---
+                decimal calculatedPrice = await CalculateTotalCostAsync(request);
+                string pnr = bookingRepo.GenerateUniquePnr();
 
+                // --- 2. Create the Booking Entity ---
                 var booking = new Booking
                 {
-                    BookingCode = GenerateBookingCode(),
-                    UserId = request.UserId,
+                    Pnr = pnr,
                     FlightId = request.FlightId,
-                    TotalAmount = request.TotalAmount ?? 0m,
-                    Status = BookingStatus.Confirmed,
-                    CreatedAt = DateTime.UtcNow
+                    FlightBundleId = request.FlightBundleId,
+                    UserId = request.UserId,
+                    ContactEmail = request.ContactEmail,
+                    ContactPhone = request.ContactPhone,
+                    TotalPrice = calculatedPrice,
+                    Currency = "PHP", // Hardcoded currency for now
+                    Status = "PendingPayment",
+                    BookingDate = DateTime.UtcNow
                 };
 
-                await repo.AddAsync(booking);
-                await repo.SaveChangesAsync(); // get booking.Id
+                await bookingRepo.AddAsync(booking);
+                await bookingRepo.SaveChangesAsync(); // Get the generated BookingId
 
-                // add passengers (create guest passenger if needed)
-                foreach (var p in request.Passengers)
+                // --- 3. Process Passengers, Add-Ons, and Reserve Seats ---
+                foreach (var pReq in request.Passengers)
                 {
-                    int? passengerId = p.PassengerId;
-                    Passenger? passengerEntity = null;
+                    var passenger = mapper.Map<BookingPassenger>(pReq);
+                    passenger.BookingId = booking.BookingId;
 
-                    if (passengerId.HasValue)
+                    // Add and Save the Passenger FIRST to get the BookingPassengerId
+                    // This is CRITICAL for the foreign keys on BookingAddOn and FlightSeat.
+                    db.Set<BookingPassenger>().Add(passenger);
+                    await bookingRepo.SaveChangesAsync();
+
+                    // --- 4. Process Add-Ons ---
+                    if (pReq.AddOnPriceIds.Count != 0)
                     {
-                        passengerEntity = await passengerRepo.GetByIdAsync(passengerId.Value);
-                        if (passengerEntity == null) throw new KeyNotFoundException($"Passenger id {passengerId} not found.");
-                    }
-                    else
-                    {
-                        // create guest passenger
-                        var newPassenger = new Passenger
+                        // Get the active prices at the time of booking
+                        var prices = await addOnPriceRepo.GetPricesByIdsAsync(pReq.AddOnPriceIds);
+
+                        foreach (var price in prices)
                         {
-                            UserId = null,
-                            FirstName = p.FirstName ?? "Unknown",
-                            MiddleName = p.MiddleName,
-                            LastName = p.LastName ?? "Unknown",
-                            DateOfBirth = p.DateOfBirth ?? DateTime.MinValue,
-                            Email = p.Email,
-                            PhoneNumber = p.PhoneNumber
-                        };
-                        passengerEntity = await passengerRepo.AddAsync(newPassenger);
-                        await passengerRepo.SaveChangesAsync();
+                            // FIX: Set the required 'PassengerId' property using the newly generated ID.
+                            db.Set<BookingAddOn>().Add(new BookingAddOn
+                            {
+                                PassengerId = passenger.BookingPassengerId, // <-- FIX APPLIED HERE
+                                AddOnPriceId = price.AddOnPriceId,
+                                PriceAtBooking = price.PriceAmount // Denormalize the price
+                            });
+                        }
                     }
 
-                    var bp = new BookingPassenger
+                    // --- 5. Finalize Seat Reservation (Setting the correct PassengerId on FlightSeat) ---
+                    if (pReq.FlightSeatId.HasValue)
                     {
-                        BookingId = booking.Id,
-                        FlightId = request.FlightId,
-                        PassengerId = passengerEntity?.Id,
-                        PassengerName = passengerEntity?.FullName ?? $"{p.FirstName} {p.LastName}".Trim(),
-                        PassengerEmail = passengerEntity?.Email ?? p.Email,
-                        SeatNumber = p.SeatNumber.Trim().ToUpper(),
-                        IsContinuingPassenger = p.IsContinuingPassenger
-                    };
-
-                    db.BookingPassengers.Add(bp);
+                        // The ReserveSeatAsync service method is called to update the FlightSeat Status and link it to the newly created BookingPassengerId
+                        await flightSeatService.ReserveSeatAsync(pReq.FlightSeatId.Value,
+                            new ReserveFlightSeatRequest
+                            {
+                                BookingId = booking.BookingId,
+                                PassengerId = passenger.BookingPassengerId, // <-- FIX APPLIED HERE
+                                SeatAddOnId = null
+                            });
+                    }
                 }
 
-                await db.SaveChangesAsync();
-                await tx.CommitAsync();
+                // Save all pending changes (Add-ons and Final Seat Updates)
+                await bookingRepo.SaveChangesAsync();
 
-                // reload full booking
-                var created = await repo.GetByIdAsync(booking.Id);
-                if (created == null) return null;
+                // Commit the entire transaction
+                await transaction.CommitAsync();
 
-                // map to response
-                var response = new BookingResponse
-                {
-                    Id = created.Id,
-                    BookingCode = created.BookingCode,
-                    FlightId = created.FlightId,
-                    FlightNumber = created.Flight?.FlightNumber ?? string.Empty,
-                    Status = created.Status,
-                    TotalAmount = created.TotalAmount,
-                    CreatedAt = created.CreatedAt,
-                    Passengers = [.. created.Passengers.Select(bp => new BookingPassengerResponse
-                    {
-                        Id = bp.Id,
-                        PassengerId = bp.PassengerId,
-                        PassengerName = bp.PassengerName,
-                        PassengerEmail = bp.PassengerEmail,
-                        SeatNumber = bp.SeatNumber
-                    })]
-                };
+                // --- 6. Final Response Mapping ---
+                // Fetch the fully populated booking entity again for a clean response map
+                var createdBooking = await bookingRepo.GetByIdAsync(booking.BookingId)
+                    ?? throw new InvalidOperationException("Failed to retrieve created booking after commit.");
 
-                return response;
+                return mapper.Map<BookingResponse>(createdBooking);
             }
-            catch
+            catch (Exception)
             {
-                await tx.RollbackAsync();
-                throw;
+                // Rollback transaction on any failure
+                await transaction.RollbackAsync();
+                throw; // Re-throw the exception for the controller to handle
             }
         }
+
+        // --- Retrieval Methods ---
 
         public async Task<BookingResponse?> GetByIdAsync(int id)
         {
-            var b = await repo.GetByIdAsync(id);
-            if (b == null) return null;
-            return new BookingResponse
-            {
-                Id = b.Id,
-                BookingCode = b.BookingCode,
-                FlightId = b.FlightId,
-                FlightNumber = b.Flight?.FlightNumber ?? string.Empty,
-                Status = b.Status,
-                TotalAmount = b.TotalAmount,
-                CreatedAt = b.CreatedAt,
-                Passengers = [.. b.Passengers.Select(bp => new BookingPassengerResponse
-                {
-                    Id = bp.Id,
-                    PassengerId = bp.PassengerId,
-                    PassengerName = bp.PassengerName,
-                    PassengerEmail = bp.PassengerEmail,
-                    SeatNumber = bp.SeatNumber
-                })]
-            };
+            var booking = await bookingRepo.GetByIdAsync(id);
+            return booking == null ? null : mapper.Map<BookingResponse>(booking);
         }
 
-        public async Task<BookingResponse?> UpdateBookingAsync(int id, UpdateBookingRequest request)
+        public async Task<BookingResponse?> GetByPnrAsync(string pnr)
         {
-            var booking = await repo.GetByIdAsync(id);
+            var booking = await bookingRepo.GetByPnrAsync(pnr);
+            return booking == null ? null : mapper.Map<BookingResponse>(booking);
+        }
+
+        public async Task<IEnumerable<BookingResponse>> GetByUserIdAsync(int userId)
+        {
+            var bookings = await bookingRepo.GetByUserIdAsync(userId);
+            return mapper.Map<IEnumerable<BookingResponse>>(bookings);
+        }
+
+        // --- Update Methods ---
+
+        public async Task<BookingResponse?> UpdateStatusAsync(string pnr, string newStatus)
+        {
+            var booking = await bookingRepo.GetByPnrAsync(pnr);
             if (booking == null) return null;
 
-            // start transaction
-            using var tx = await db.Database.BeginTransactionAsync();
-            try
+            // Simple state machine validation (e.g., cannot go from Cancelled to Confirmed)
+            // NOTE: Full state machine logic is omitted for brevity.
+            if (booking.Status == "Cancelled" && newStatus != "Cancelled")
+                throw new InvalidOperationException("Cannot change status of a Cancelled booking.");
+
+            booking.Status = newStatus;
+            booking.UpdatedAt = DateTime.UtcNow;
+
+            // Special case: If confirmed, set PaymentDate
+            if (newStatus == "Confirmed" && !booking.PaymentDate.HasValue)
             {
-                // If total amount/status provided, update
-                if (request.TotalAmount.HasValue) booking.TotalAmount = request.TotalAmount.Value;
-                if (request.Status.HasValue) booking.Status = request.Status.Value;
-                booking.UpdatedAt = DateTime.UtcNow;
-
-                // If passenger list provided, we will replace existing passengers
-                if (request.Passengers != null)
-                {
-                    // 1) Compose requested seat set (upper-case normalized)
-                    var requestedSeats = request.Passengers.Select(p => p.SeatNumber.Trim().ToUpper()).ToList();
-
-                    // 2) Check seat availability across other bookings for the same flight
-                    //    exclude seats currently held by this booking (so booking can keep same seats)
-                    var occupiedQuery = db.BookingPassengers
-                        .Where(bp => bp.FlightId == booking.FlightId && bp.BookingId != booking.Id && bp.Booking.Status != BookingStatus.Cancelled);
-
-                    var occupiedSeats = await occupiedQuery
-                        .Select(bp => bp.SeatNumber)
-                        .ToListAsync();
-
-                    var conflicts = requestedSeats.Intersect(occupiedSeats).ToList();
-                    if (conflicts.Count > 0)
-                    {
-                        throw new InvalidOperationException($"Seats already taken: {string.Join(", ", conflicts)}");
-                    }
-
-                    // 3) Remove existing BookingPassengers for this booking
-                    var existingPassengers = booking.Passengers.ToList(); // attached entities
-                    if (existingPassengers.Count > 0)
-                    {
-                        db.BookingPassengers.RemoveRange(existingPassengers);
-                        await db.SaveChangesAsync(); // persist removal before re-adding (ensures unique index ok)
-                    }
-
-                    // 4) Add new passenger entries (create guest passenger records if needed)
-                    var newBps = new List<BookingPassenger>();
-                    foreach (var p in request.Passengers)
-                    {
-                        Passenger? passengerEntity = null;
-                        if (p.PassengerId.HasValue)
-                        {
-                            passengerEntity = await passengerRepo.GetByIdAsync(p.PassengerId.Value);
-                            if (passengerEntity == null) throw new KeyNotFoundException($"Passenger id {p.PassengerId} not found.");
-                        }
-                        else
-                        {
-                            var newPassenger = new Passenger
-                            {
-                                UserId = null,
-                                FirstName = p.FirstName ?? "Unknown",
-                                MiddleName = p.MiddleName,
-                                LastName = p.LastName ?? "Unknown",
-                                DateOfBirth = p.DateOfBirth ?? DateTime.MinValue,
-                                Email = p.Email,
-                                PhoneNumber = p.PhoneNumber
-                            };
-                            passengerEntity = await passengerRepo.AddAsync(newPassenger);
-                            await passengerRepo.SaveChangesAsync();
-                        }
-
-                        var bp = new BookingPassenger
-                        {
-                            BookingId = booking.Id,
-                            FlightId = booking.FlightId,
-                            PassengerId = passengerEntity?.Id,
-                            PassengerName = passengerEntity?.FullName ?? $"{p.FirstName} {p.LastName}".Trim(),
-                            PassengerEmail = passengerEntity?.Email ?? p.Email,
-                            SeatNumber = p.SeatNumber.Trim().ToUpper(),
-                            IsContinuingPassenger = p.IsContinuingPassenger,
-                            CreatedAt = DateTime.UtcNow
-                        };
-
-                        newBps.Add(bp);
-                    }
-
-                    // Add them to DB
-                    await db.BookingPassengers.AddRangeAsync(newBps);
-                }
-
-                // persist booking updates
-                repo.Update(booking);
-                await repo.SaveChangesAsync();
-
-                await tx.CommitAsync();
-
-                // Return updated booking (reload to include passengers)
-                var updated = await repo.GetByIdAsync(booking.Id);
-                if (updated == null) return null;
-
-                return new BookingResponse
-                {
-                    Id = updated.Id,
-                    BookingCode = updated.BookingCode,
-                    FlightId = updated.FlightId,
-                    FlightNumber = updated.Flight?.FlightNumber ?? string.Empty,
-                    Status = updated.Status,
-                    TotalAmount = updated.TotalAmount,
-                    CreatedAt = updated.CreatedAt,
-                    Passengers = [.. updated.Passengers.Select(bp => new BookingPassengerResponse
-                    {
-                        Id = bp.Id,
-                        PassengerId = bp.PassengerId,
-                        PassengerName = bp.PassengerName,
-                        PassengerEmail = bp.PassengerEmail,
-                        SeatNumber = bp.SeatNumber
-                    })]
-                };
+                booking.PaymentDate = DateTime.UtcNow;
             }
-            catch
-            {
-                await tx.RollbackAsync();
-                throw;
-            }
+
+            await bookingRepo.UpdateAsync(booking);
+            await bookingRepo.SaveChangesAsync();
+            return mapper.Map<BookingResponse>(booking);
         }
 
-
-        public async Task<BookingResponse?> GetByCodeAsync(string code)
+        public async Task<BookingResponse?> UpdateContactInfoAsync(string pnr, UpdateBookingRequest request)
         {
-            var b = await repo.GetByCodeAsync(code);
-            if (b == null) return null;
-            return await GetByIdAsync(b.Id);
-        }
+            var booking = await bookingRepo.GetByPnrAsync(pnr);
+            if (booking == null) return null;
 
-        public async Task<bool> CancelBookingAsync(int id)
-        {
-            var booking = await repo.GetByIdAsync(id);
-            if (booking == null) return false;
-            booking.Status = BookingStatus.Cancelled;
-            await repo.CancelAsync(booking);
-            return true;
-        }
+            if (request.ContactEmail != null) booking.ContactEmail = request.ContactEmail;
+            if (request.ContactPhone != null) booking.ContactPhone = request.ContactPhone;
 
-        public async Task<IEnumerable<BookingResponse>> GetByFlightAsync(int flightId)
-        {
-            var list = await repo.GetByFlightIdAsync(flightId);
-            return list.Select(b => new BookingResponse
-            {
-                Id = b.Id,
-                BookingCode = b.BookingCode,
-                FlightId = b.FlightId,
-                FlightNumber = b.Flight?.FlightNumber ?? string.Empty,
-                Status = b.Status,
-                TotalAmount = b.TotalAmount,
-                CreatedAt = b.CreatedAt,
-                Passengers = [.. b.Passengers.Select(bp => new BookingPassengerResponse
-                {
-                    Id = bp.Id,
-                    PassengerId = bp.PassengerId,
-                    PassengerName = bp.PassengerName,
-                    PassengerEmail = bp.PassengerEmail,
-                    SeatNumber = bp.SeatNumber
-                })]
-            });
+            booking.UpdatedAt = DateTime.UtcNow;
+
+            await bookingRepo.UpdateAsync(booking);
+            await bookingRepo.SaveChangesAsync();
+            return mapper.Map<BookingResponse>(booking);
         }
     }
 }

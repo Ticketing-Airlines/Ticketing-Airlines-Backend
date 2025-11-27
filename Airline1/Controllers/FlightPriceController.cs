@@ -84,9 +84,10 @@ namespace Airline1.Controllers
         public async Task<IActionResult> GetCurrentPrice(
             [FromQuery] int flightId,
             [FromQuery] string cabinClass,
-            [FromQuery] int flightBundleId)
+            [FromQuery] int flightBundleId,
+            [FromQuery] string passengerType)
         {
-            var response = await service.GetCurrentPriceAsync(flightId, cabinClass, flightBundleId);
+            var response = await service.GetCurrentPriceAsync(flightId, cabinClass, flightBundleId, passengerType);
             if (response == null) return NotFound(new { message = "No active base price found for this combination." });
             return Ok(response);
         }

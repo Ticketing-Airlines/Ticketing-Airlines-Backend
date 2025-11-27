@@ -1,35 +1,53 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Airline1.Models
 {
+    // Represents an individual passenger and their choices within a Booking
     public class BookingPassenger
     {
         [Key]
-        public int Id { get; set; }
+        public int BookingPassengerId { get; set; }
 
-        [ForeignKey(nameof(Booking))]
-        public int BookingId { get; set; }
-        public Booking Booking { get; set; } = null!;
+        public required int BookingId { get; set; }
 
-        // Denormalized FlightId for easy queries (keeps checks simple)
-        public int FlightId { get; set; }
+        // --- Identity ---
+        [MaxLength(50)]
+        public required string FirstName { get; set; }
 
-        // Link to existing passenger (if provided), otherwise the service will create a Passenger record
-        [ForeignKey(nameof(Passenger))]
-        public int? PassengerId { get; set; }
-        public Passenger? Passenger { get; set; }
+        [MaxLength(50)]
+        public required string LastName { get; set; }
 
-        [MaxLength(150)]
-        public string PassengerName { get; set; } = string.Empty;
-        [MaxLength(200)]
-        public string? PassengerEmail { get; set; }
+        [MaxLength(50)]
+        public string? MiddleName { get; set; }
 
-        [MaxLength(6)]
-        public string SeatNumber { get; set; } = string.Empty; 
+        public DateTime DateOfBirth { get; set; }
 
-        public bool IsContinuingPassenger { get; set; } = false; 
+        [MaxLength(10)]
+        public required string Gender { get; set; } // M, F, O
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        // --- Passenger Type (ADT, CHD, INF, SENIOR) ---
+        [MaxLength(10)]
+        public required string PassengerType { get; set; } = "ADT";
+
+        // --- Seat Assignment ---
+        // Nullable foreign key to FlightSeat
+        public int? FlightSeatId { get; set; }
+
+        // --- Add-Ons ---
+        // List of AddOnPrice IDs purchased for THIS passenger (e.g., extra bags, meals)
+        public ICollection<BookingAddOn> AddOns { get; set; } = [];
+
+        // --- Navigation Properties ---
+        [ForeignKey(nameof(BookingId))]
+        public Booking? Booking { get; set; }
+
+        [ForeignKey(nameof(FlightSeatId))]
+        public FlightSeat? FlightSeat { get; set; }
+
+        // Optional: Link back to a user profile if applicable (e.g., frequent flyer)
+        public int? UserId { get; set; }
     }
 }

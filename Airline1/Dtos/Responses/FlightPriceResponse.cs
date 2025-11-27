@@ -16,7 +16,7 @@ namespace Airline1.Dtos.Responses
 
         public string CabinClass { get; set; } = "Economy";
         public decimal BasePrice { get; set; }
-
+        public required string PassengerType { get; set; }
         public DateTime EffectiveFrom { get; set; }
         public DateTime? EffectiveTo { get; set; }
         public bool IsActive { get; set; }

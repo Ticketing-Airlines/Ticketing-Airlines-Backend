@@ -1,27 +1,18 @@
-﻿namespace Airline1.Dtos.Requests
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Airline1.Dtos.Requests
 {
-    public class UpdatePassengerForBookingDto
-    {
-        public int? PassengerId { get; set; }
-
-        public string? FirstName { get; set; }
-        public string? MiddleName { get; set; }
-        public string? LastName { get; set; }
-        public DateTime? DateOfBirth { get; set; }
-        public string? Email { get; set; }
-        public string? PhoneNumber { get; set; }
-
-        public required string SeatNumber { get; set; }
-        public bool IsContinuingPassenger { get; set; } = false;
-    }
-
+    // Request to update a booking's status or contact info
     public class UpdateBookingRequest
     {
-        // Allow updating total amount, status (optional), and passenger list (optional)
-        public decimal? TotalAmount { get; set; }
-        public Airline1.Models.BookingStatus? Status { get; set; }
+        [EmailAddress]
+        public string? ContactEmail { get; set; }
 
-        // If present, replace the booking's passenger list with this list
-        public List<PassengerForBookingDto>? Passengers { get; set; }
+        [Phone]
+        public string? ContactPhone { get; set; }
+
+        // For status updates (e.g., Admin marking as Confirmed or Cancelled)
+        [MaxLength(50)]
+        public string? Status { get; set; }
     }
 }

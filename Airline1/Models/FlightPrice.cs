@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Models/FlightPrice.cs
+
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,16 +12,20 @@ namespace Airline1.Models
         public int Id { get; set; }
         public required int FlightId { get; set; }
 
-        public required int FlightBundleId { get; set; } // <<-- Core link to ticket type
+        public required int FlightBundleId { get; set; }
 
         [ForeignKey(nameof(FlightId))]
         public Flight? Flight { get; set; }
 
         [ForeignKey(nameof(FlightBundleId))]
-        public FlightBundle? FlightBundle { get; set; } // Navigation Property
+        public FlightBundle? FlightBundle { get; set; }
 
-        [ MaxLength(50)]
+        [MaxLength(50)]
         public required string CabinClass { get; set; } = "Economy";
+
+        // 🌟 NEW: Passenger Type Code (e.g., ADT, CHD, INF)
+        [MaxLength(10)]
+        public required string PassengerType { get; set; } = "ADT";
 
         [Column(TypeName = "decimal(10,2)")]
         public required decimal BasePrice { get; set; }

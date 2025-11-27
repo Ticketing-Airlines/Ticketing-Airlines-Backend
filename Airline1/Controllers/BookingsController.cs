@@ -6,53 +6,104 @@ namespace Airline1.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class BookingsController(IBookingService service) : ControllerBase
+    public class BookingController(IBookingService bookingService) : ControllerBase
     {
+        private readonly IBookingService _bookingService = bookingService;
+
+        /// <summary>
+        /// Creates a new flight booking (Initiates PendingPayment status).
+        /// </summary>
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateBookingRequest request)
+        public async Task<IActionResult> CreateBooking([FromBody] CreateBookingRequest request)
         {
-            var booking = await service.CreateBookingAsync(request);
-            if (booking == null) return BadRequest(new { message = "Unable to create booking." });
-            return CreatedAtAction(nameof(GetById), new { id = booking.Id }, booking);
+            try
+            {
+                var response = await _bookingService.CreateAsync(request);
+                return CreatedAtAction(nameof(GetBookingByPnr), new { pnr = response.Pnr }, response);
+            }
+            catch (System.Collections.Generic.KeyNotFoundException ex) // <-- FIXED
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        /// <summary>
+        /// Gets a booking by its PNR (Record Locator).
+        /// </summary>
+        [HttpGet("{pnr}")]
+        public async Task<IActionResult> GetBookingByPnr(string pnr)
         {
-            var b = await service.GetByIdAsync(id);
-            if (b == null) return NotFound();
-            return Ok(b);
+            var booking = await _bookingService.GetByPnrAsync(pnr);
+            return booking == null ? NotFound() : Ok(booking);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateBookingRequest request)
+        /// <summary>
+        /// Updates the contact information for a booking.
+        /// </summary>
+        [HttpPut("{pnr}")]
+        public async Task<IActionResult> UpdateBookingContact(string pnr, [FromBody] UpdateBookingRequest request)
         {
-            var updated = await service.UpdateBookingAsync(id, request);
-            if (updated == null) return NotFound();
-            return Ok(updated);
+            try
+            {
+                var updated = await _bookingService.UpdateContactInfoAsync(pnr, request);
+                return updated == null ? NotFound() : Ok(updated);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
-
-        [HttpGet("code/{code}")]
-        public async Task<IActionResult> GetByCode(string code)
+        /// <summary>
+        /// ADMIN/System: Updates the status of a booking (e.g., from PendingPayment to Confirmed).
+        /// </summary>
+        [HttpPut("{pnr}/status/{newStatus}")]
+        public async Task<IActionResult> UpdateBookingStatus(string pnr, string newStatus)
         {
-            var b = await service.GetByCodeAsync(code);
-            if (b == null) return NotFound();
-            return Ok(b);
+            try
+            {
+                var updated = await _bookingService.UpdateStatusAsync(pnr, newStatus);
+                return updated == null ? NotFound() : Ok(updated);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
-        [HttpPut("{id}/cancel")]
-        public async Task<IActionResult> Cancel(int id)
+        /// <summary>
+        /// Gets all bookings for a specific user ID.
+        /// </summary>
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetBookingsByUserId(int userId)
         {
-            var ok = await service.CancelBookingAsync(id);
-            return ok ? NoContent() : NotFound();
+            var bookings = await _bookingService.GetByUserIdAsync(userId);
+            return Ok(bookings);
         }
 
-        [HttpGet("flight/{flightId}")]
-        public async Task<IActionResult> GetByFlight(int flightId)
+        /// <summary>
+        /// Pre-calculates the price for a potential booking.
+        /// </summary>
+        [HttpPost("calculate-cost")]
+        public async Task<IActionResult> CalculateBookingCost([FromBody] CreateBookingRequest request)
         {
-            var list = await service.GetByFlightAsync(flightId);
-            return Ok(list);
+            try
+            {
+                decimal totalCost = await _bookingService.CalculateTotalCostAsync(request);
+                return Ok(new { TotalCost = totalCost, Currency = "PHP" });
+            }
+            catch (System.Collections.Generic.KeyNotFoundException ex) // <-- FIXED
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
     }
 }

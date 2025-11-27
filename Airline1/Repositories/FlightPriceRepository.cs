@@ -1,4 +1,5 @@
-﻿using Airline1.Data;
+﻿using Airline1.Common;
+using Airline1.Data;
 using Airline1.IRepositories;
 using Airline1.Models;
 using Microsoft.EntityFrameworkCore;
@@ -59,13 +60,14 @@ namespace Airline1.Repositories
         /// <summary>
         /// Retrieves the single active FlightPrice record for a specific combination and time 't'.
         /// </summary>
-        public async Task<FlightPrice?> GetActivePriceAsync(int flightId, string cabinClass, int flightBundleId, DateTime t)
+        public async Task<FlightPrice?> GetActivePriceAsync(int flightId, string cabinClass, int flightBundleId, string passengerType, DateTime t)
         {
             return await context.FlightPrices
                 .Include(p => p.FlightBundle)
                 .Where(p => p.FlightId == flightId &&
                             p.CabinClass == cabinClass &&
                             p.FlightBundleId == flightBundleId && // Match the specific bundle
+                            p.PassengerType == passengerType &&
                             p.EffectiveFrom <= t &&               // Price is effective now or in the past
                             (p.EffectiveTo == null || p.EffectiveTo > t)) // Price hasn't expired yet
                 .OrderByDescending(p => p.EffectiveFrom) // Fallback: Take the latest if temporal overlap occurs

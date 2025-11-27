@@ -1,39 +1,56 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Airline1.Models
 {
-    public enum BookingStatus
-    {
-        Pending = 0,
-        Confirmed = 1,
-        Cancelled = 2,
-        Completed = 3
-    }
-
+    // Represents the entire flight reservation transaction
     public class Booking
     {
         [Key]
-        public int Id { get; set; }
+        public int BookingId { get; set; }
 
-        [Required, MaxLength(20)]
-        public string BookingCode { get; set; } = string.Empty; // e.g. PR-20251024-ABC123
+        // PNR-like record locator
+        [MaxLength(6)]
+        public required string Pnr { get; set; }
 
-        [ForeignKey(nameof(User))]
-        public int? UserId { get; set; }               // optional (guest booking)
-        public User? User { get; set; }
+        // --- Flight and Bundle Details ---
+        public required int FlightId { get; set; }
+        public required int FlightBundleId { get; set; }
 
-        [Required]
-        public int FlightId { get; set; }              // flight being booked
-        public Flight Flight { get; set; } = null!;
+        // --- User/Guest Information ---
+        public int? UserId { get; set; } // Null for Guest booking
 
-        public BookingStatus Status { get; set; } = BookingStatus.Confirmed;
+        [MaxLength(255)]
+        public required string ContactEmail { get; set; }
 
-        public decimal TotalAmount { get; set; } = 0m;
+        [MaxLength(20)]
+        public required string ContactPhone { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        // --- Financials ---
+        [Column(TypeName = "decimal(18, 2)")]
+        public required decimal TotalPrice { get; set; }
+
+        [MaxLength(5)]
+        public required string Currency { get; set; } = "PHP";
+
+        // --- Status and Audit ---
+        [MaxLength(50)]
+        public required string Status { get; set; } = "PendingPayment"; // PendingPayment, Confirmed, Cancelled, Completed
+
+        public DateTime BookingDate { get; set; } = DateTime.UtcNow;
+        public DateTime? PaymentDate { get; set; }
         public DateTime? UpdatedAt { get; set; }
 
+        // --- Navigation Properties ---
+        [ForeignKey(nameof(FlightId))]
+        public Flight? Flight { get; set; }
+
+        [ForeignKey(nameof(FlightBundleId))]
+        public FlightBundle? FlightBundle { get; set; }
+
+        // One-to-Many relationship with passengers
         public ICollection<BookingPassenger> Passengers { get; set; } = [];
     }
 }

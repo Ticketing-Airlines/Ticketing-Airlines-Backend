@@ -2,52 +2,75 @@
 using Airline1.IRepositories;
 using Airline1.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Airline1.Repositories
 {
-    public class BookingRepository(AppDbContext context) : IBookingRepository
+    public class BookingRepository(AppDbContext db) : IBookingRepository
     {
-        public async Task<Booking> AddAsync(Booking booking)
+        private readonly AppDbContext _db = db;
+
+        // Note: Includes all navigation properties required for a full response
+        private IQueryable<Booking> GetBookingQuery()
         {
-            await context.Bookings.AddAsync(booking);
-            return booking;
+            return _db.Bookings
+                .Include(b => b.FlightBundle)
+                .Include(b => b.Passengers)
+                    .ThenInclude(p => p.FlightSeat)
+                        .ThenInclude(fs => fs!.Seat) // Include the actual seat details (SeatNumber)
+                .Include(b => b.Passengers)
+                    .ThenInclude(p => p.AddOns)
+                        .ThenInclude(ba => ba.AddOnPrice)
+                            .ThenInclude(ap => ap!.AddOn); // Include AddOn details (Name, Code)
         }
 
         public async Task<Booking?> GetByIdAsync(int id)
         {
-            return await context.Bookings
-                .Include(b => b.Passengers)
-                .Include(b => b.Flight)
-                .FirstOrDefaultAsync(b => b.Id == id);
+            return await GetBookingQuery().FirstOrDefaultAsync(b => b.BookingId == id);
         }
 
-        public async Task<Booking?> GetByCodeAsync(string code)
+        public async Task<Booking?> GetByPnrAsync(string pnr)
         {
-            return await context.Bookings
-                .Include(b => b.Passengers)
-                .Include(b => b.Flight)
-                .FirstOrDefaultAsync(b => b.BookingCode == code);
+            return await GetBookingQuery().FirstOrDefaultAsync(b => b.Pnr == pnr);
         }
 
-        public async Task<IEnumerable<Booking>> GetByFlightIdAsync(int flightId)
+        public async Task<IEnumerable<Booking>> GetByUserIdAsync(int userId)
         {
-            return await context.Bookings
-                .Where(b => b.FlightId == flightId)
-                .Include(b => b.Passengers)
-                .ToListAsync();
+            return await GetBookingQuery().Where(b => b.UserId == userId).ToListAsync();
         }
 
-        public void Update(Booking booking)
+        public async Task<Booking> AddAsync(Booking booking)
         {
-            context.Bookings.Update(booking);
+            await _db.Bookings.AddAsync(booking);
+            return booking;
         }
-        public async Task SaveChangesAsync() => await context.SaveChangesAsync();
 
-        public async Task CancelAsync(Booking booking)
+        public Task UpdateAsync(Booking booking)
         {
-            booking.Status = BookingStatus.Cancelled;
-            context.Bookings.Update(booking);
-            await context.SaveChangesAsync();
+            _db.Bookings.Update(booking);
+            return Task.CompletedTask;
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _db.SaveChangesAsync();
+        }
+
+        public string GenerateUniquePnr()
+        {
+            const string chars = "ABCDEFGHIJKLMNPQRSTUVWXYZ123456789";
+            var random = new System.Random();
+            string pnr;
+
+            // Loop until a unique 6-character PNR is generated
+            do
+            {
+                pnr = new string([.. Enumerable.Repeat(chars, 6).Select(s => s[random.Next(s.Length)])]);
+            } while (_db.Bookings.Any(b => b.Pnr == pnr));
+
+            return pnr;
         }
     }
 }
