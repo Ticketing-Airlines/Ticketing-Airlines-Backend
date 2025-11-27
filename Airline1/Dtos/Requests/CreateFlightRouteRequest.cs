@@ -6,13 +6,8 @@ namespace Airline1.Dtos.Requests
     {
         [MaxLength(50)]
         public required string Code { get; set; }
-
-        [Required]
-        public int OriginAirportId { get; set; }
-
-        [Required]
-        public int DestinationAirportId { get; set; }
-
+        public required int OriginAirportId { get; set; }
+        public required int DestinationAirportId { get; set; }
         public double? DistanceKm { get; set; }
         public int? AverageFlightTimeMinutes { get; set; }
         public int FrequencyWeekly { get; set; } = 0;

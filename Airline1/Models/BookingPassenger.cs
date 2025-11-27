@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Airline1.Models
@@ -21,16 +20,15 @@ namespace Airline1.Models
         public int? PassengerId { get; set; }
         public Passenger? Passenger { get; set; }
 
-        // Snapshot of passenger name/email for quick reporting (redundant but useful)
         [MaxLength(150)]
         public string PassengerName { get; set; } = string.Empty;
         [MaxLength(200)]
         public string? PassengerEmail { get; set; }
 
         [MaxLength(6)]
-        public string SeatNumber { get; set; } = string.Empty; // e.g. 12A
+        public string SeatNumber { get; set; } = string.Empty; 
 
-        public bool IsContinuingPassenger { get; set; } = false; // for multi-leg logic later
+        public bool IsContinuingPassenger { get; set; } = false; 
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

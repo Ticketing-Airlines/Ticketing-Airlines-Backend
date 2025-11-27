@@ -1,13 +1,12 @@
 ﻿using Airline1.Dtos.Requests;
 using Airline1.IService;
-using Airline1.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Airline1.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class FlightsController(FlightService service) : ControllerBase
+    public class FlightsController(IFlightService service) : ControllerBase
     {
 
         [HttpGet]

@@ -23,7 +23,6 @@ namespace Airline1.Models
         // ✅ Each Flight can have multiple pricing records
         public ICollection<FlightPrice>? FlightPrices { get; set; }
 
-
         // ✅ Each Flight can have multiple statuses
         public ICollection<FlightStatus>? Statuses { get; set; }
 

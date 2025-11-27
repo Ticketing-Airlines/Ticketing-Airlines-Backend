@@ -93,6 +93,8 @@ builder.Services.AddScoped<IAirportService, AirportService>();
 builder.Services.AddScoped<IAircraftRepository, AircraftRepository>();
 builder.Services.AddScoped<IAircraftService, AircraftService>();
 
+builder.Services.AddScoped<ISeatingProvisioningService, SeatingProvisioningService>();
+
 builder.Services.AddScoped<IFlightRouteRepository, FlightRouteRepository>();
 builder.Services.AddScoped<IFlightRouteService, FlightRouteService>();
 
@@ -102,6 +104,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFlightPriceRepository, FlightPriceRepository>();
 builder.Services.AddScoped<IFlightPriceService, FlightPriceService>();
 
+builder.Services.AddScoped<IFlightBundleRepository, FlightBundleRepository>();
+builder.Services.AddScoped<IFlightBundleService, FlightBundleService>();
 
 builder.Services.AddScoped<IFlightRepository, FlightRepository>();
 builder.Services.AddScoped<IFlightService, FlightService>();
@@ -115,8 +119,20 @@ builder.Services.AddScoped<IFlightStatusService, FlightStatusService>();
 builder.Services.AddScoped<IAircraftConfigurationRepository, AircraftConfigurationRepository>();
 builder.Services.AddScoped<IAircraftConfigurationService, AircraftConfigurationService>();
 
+builder.Services.AddScoped<ISeatRepository, SeatRepository>();
+builder.Services.AddScoped<ISeatService, SeatService>();
+
 builder.Services.AddScoped<IFlightStatusReasonRepository, FlightStatusReasonRepository>();
 builder.Services.AddScoped<IFlightStatusReasonService, FlightStatusReasonService>();
+
+builder.Services.AddScoped<IFlightSeatRepository, FlightSeatRepository>();
+builder.Services.AddScoped<IFlightSeatService, FlightSeatService>();
+
+builder.Services.AddScoped<IFlightAddOnRepository, FlightAddOnRepository>();
+builder.Services.AddScoped<IFlightAddOnService, FlightAddOnService>();
+
+builder.Services.AddScoped<IAddOnPriceRepository, AddOnPriceRepository>();
+builder.Services.AddScoped<IAddOnPriceService, AddOnPriceService>();
 
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
