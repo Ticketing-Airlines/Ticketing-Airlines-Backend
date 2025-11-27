@@ -34,6 +34,10 @@ namespace Airline1.Mappings
             CreateMap<UpdateFlightRequest, Flight>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
+            CreateMap<FlightBundle, FlightBundleResponse>();
+            CreateMap<CreateFlightBundleRequest, FlightBundle>();
+            CreateMap<UpdateFlightBundleRequest, FlightBundle>();
+
             CreateMap<FlightPrice, FlightPriceResponse>();
             CreateMap<Flight, FlightResponse>()
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => src.Route!.OriginAirport.Name ))
@@ -79,11 +83,23 @@ namespace Airline1.Mappings
             CreateMap<AircraftConfiguration, AircraftConfigurationResponse>();
             CreateMap<CabinConfigurationDetail, CabinDetailResponse>();
 
+            CreateMap<Airline1.Dtos.Requests.CreateSeatRequest, Airline1.Models.Seat>();
+            CreateMap<Airline1.Dtos.Requests.UpdateSeatRequest, Airline1.Models.Seat>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Airline1.Models.Seat, Airline1.Dtos.Responses.SeatResponse>();
 
             CreateMap<CreateBookingRequest, Booking>();
             CreateMap<PassengerForBookingDto, BookingPassenger>();
             CreateMap<Booking, BookingResponse>();
             CreateMap<BookingPassenger, BookingPassengerResponse>();
+
+            CreateMap<FlightSeat, Airline1.Dtos.Responses.FlightSeatResponse>()
+                .ForMember(d => d.SeatNumber, opt => opt.MapFrom(src => src.Seat != null ? src.Seat.SeatNumber : string.Empty));
+
+            CreateMap<CreateFlightAddOnRequest, FlightAddOn>();
+            CreateMap<UpdateFlightAddOnRequest, FlightAddOn>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<FlightAddOn, FlightAddOnResponse>();
 
             // Users
             CreateMap<CreateUserRequest, User>();

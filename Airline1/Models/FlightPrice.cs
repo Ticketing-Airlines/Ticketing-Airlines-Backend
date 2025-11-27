@@ -9,7 +9,6 @@ namespace Airline1.Models
     {
         [Key]
         public int Id { get; set; }
-
         public required int FlightId { get; set; }
 
         [ForeignKey(nameof(FlightId))]
