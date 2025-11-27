@@ -1,17 +1,24 @@
-﻿namespace Airline1.Dtos.Requests
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace Airline1.Dtos.Requests
 {
     public class CreateFlightPriceRequest
     {
-        public int FlightId { get; set; }
+        [Required]
+        public required int FlightId { get; set; }
+
+        [Required]
+        public required int FlightBundleId { get; set; } 
+
+        [Required, MaxLength(50)]
         public string CabinClass { get; set; } = "Economy";
-        public decimal BasePrice { get; set; }
 
-        // Type: "Standard" or "Promo"
-        public string Type { get; set; } = "Standard";
+        [Required, Range(0.01, 99999.99)]
+        public required decimal BasePrice { get; set; }
 
-        // schedule window for promo or scheduled standard
-        public DateTime? EffectiveFrom { get; set; }  // default UtcNow if null
-        public DateTime? EffectiveTo { get; set; }    // null = open ended
+        public DateTime? EffectiveFrom { get; set; }
+        public DateTime? EffectiveTo { get; set; }
 
         public string? UpdatedBy { get; set; }
         public string? Note { get; set; }
