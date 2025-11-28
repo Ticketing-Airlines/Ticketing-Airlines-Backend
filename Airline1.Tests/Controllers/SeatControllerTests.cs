@@ -22,9 +22,14 @@ namespace Airline1.Tests.Controllers
         [Fact]
         public async Task Create_ReturnsCreated()
         {
-            var req = new CreateSeatRequest();
+            var req = new CreateSeatRequest()
+            {
+                AircraftId = 1,
+                SeatNumber = "12A",
+                SeatClass = "Economy"
+            };
             var created = new { Id = 1 };
-            _mockService.Setup(s => s.CreateAsync(req)).ReturnsAsync(created);
+            _mockService.Setup(s => s.CreateAsync(req));
             var result = await _controller.Create(req);
             Assert.IsType<CreatedAtActionResult>(result);
         }
@@ -33,7 +38,7 @@ namespace Airline1.Tests.Controllers
         public async Task GetByAircraft_ReturnsOk()
         {
             var list = new List<object> { new { Id = 1 } };
-            _mockService.Setup(s => s.GetByAircraftAsync(1)).ReturnsAsync(list);
+            _mockService.Setup(s => s.GetByAircraftAsync(1));
             var result = await _controller.GetByAircraft(1);
             var ok = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(list, ok.Value);

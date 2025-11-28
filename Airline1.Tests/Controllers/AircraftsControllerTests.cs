@@ -1,7 +1,8 @@
 using Xunit;
 using Moq;
 using Airline1.Controllers;
-using Airline1.Services.Interfaces;
+using Airline1.Services;
+using Airline1.IService;
 using Airline1.Dtos.Requests;
 using Airline1.Dtos.Responses;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ namespace Airline1.Tests.Controllers
         {
             var request = new CreateAircraftRequest {
                 Model = "A320",
+                ConfigurationID = "Config1",
                 Manufacturer = "AirCorp",
                 TailNumber = "TN123",
                 RegistrationNumber = "REG1"
@@ -33,6 +35,7 @@ namespace Airline1.Tests.Controllers
             var response = new AircraftResponse {
                 Id = 1,
                 Model = "A320",
+                ConfigurationID = "Config1",
                 Manufacturer = "AirCorp",
                 TailNumber = "TN123",
                 RegistrationNumber = "REG1", 
@@ -55,6 +58,7 @@ namespace Airline1.Tests.Controllers
                     Id = 1,
                     Model = "A320",
                     Manufacturer = "AirCorp",
+                    ConfigurationID = "Config1",
                     TailNumber = "TN123",
                     RegistrationNumber = "R1",
                     CreatedAt = System.DateTime.UtcNow,
@@ -65,6 +69,7 @@ namespace Airline1.Tests.Controllers
                     Id = 2,
                     Model = "B737",
                     Manufacturer = "FlyInc",
+                    ConfigurationID = "Config1",
                     TailNumber = "TN456",
                     RegistrationNumber = "R2",
                     CreatedAt = System.DateTime.UtcNow,
@@ -86,6 +91,7 @@ namespace Airline1.Tests.Controllers
                 Id = 1,
                 Model = "A320",
                 Manufacturer = "AirCorp",
+                ConfigurationID = "Config1",
                 TailNumber = "TN123",
                 RegistrationNumber = "R1",
                 CreatedAt = System.DateTime.UtcNow,
@@ -120,6 +126,7 @@ namespace Airline1.Tests.Controllers
                 Id = 1,
                 Model = "A321",
                 Manufacturer = "AirCorp",
+                ConfigurationID = "Config1",
                 TailNumber = "TN123",
                 RegistrationNumber = "R1",
                 CreatedAt = System.DateTime.UtcNow,

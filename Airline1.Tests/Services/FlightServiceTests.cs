@@ -25,7 +25,13 @@ namespace Airline1.Tests.Services
         [Fact]
         public async Task GetAllAsync_UsesRepositoryAndMapper()
         {
-            var list = new List<Flight> { new Flight { Id = 1, FlightNumber = "F1" } };
+            var list = new List<Flight> { new Flight { 
+                Id = 1,
+                FlightNumber = "F1",
+                AircraftId  = 1,
+                RouteId = 2,
+                DepartureTime = DateTime.Now,
+                ArrivalTime = DateTime.Now} };
             _mockRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(list);
             _mockMapper.Setup(m => m.Map<IEnumerable<object>>(It.IsAny<object>())).Returns(new List<object> { new { Id = 1 } });
             var res = await _service.GetAllAsync();

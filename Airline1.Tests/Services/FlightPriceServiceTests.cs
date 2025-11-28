@@ -5,6 +5,7 @@ using Airline1.IRepositories;
 using Airline1.Models;
 using Airline1.Dtos.Requests;
 using System.Collections.Generic;
+using AutoMapper;
 
 namespace Airline1.Tests.Services
 {
@@ -12,6 +13,7 @@ namespace Airline1.Tests.Services
     {
         private readonly Mock<IFlightPriceRepository> _mockRepo;
         private readonly FlightPriceService _service;
+        private readonly Mock<IMapper> _mapper
 
         public FlightPriceServiceTests()
         {

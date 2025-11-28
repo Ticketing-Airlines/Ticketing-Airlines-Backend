@@ -30,6 +30,26 @@ namespace Airline1.Tests.Services
                 Code = r.Code,
                 OriginAirportId = r.OriginAirportId,
                 DestinationAirportId = r.DestinationAirportId,
+                OriginAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
+                DestinationAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
                 DistanceKm = r.DistanceKm ?? 0,
                 AverageFlightTimeMinutes = r.AverageFlightTimeMinutes,
                 FrequencyWeekly = r.FrequencyWeekly,
@@ -88,6 +108,26 @@ namespace Airline1.Tests.Services
                 Code = "R1",
                 OriginAirportId = 1,
                 DestinationAirportId = 2,
+                OriginAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
+                DestinationAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
                 DistanceKm = 1000,
                 AverageFlightTimeMinutes = 120,
                 FrequencyWeekly = 7,
@@ -137,6 +177,26 @@ namespace Airline1.Tests.Services
                 Id = 5,
                 Code = "R1",
                 OriginAirportId = 1,
+                OriginAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
+                DestinationAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
                 DestinationAirportId = 2,
                 DistanceKm = 1000,
                 AverageFlightTimeMinutes = 120,
@@ -157,6 +217,26 @@ namespace Airline1.Tests.Services
                     Id = 1,
                     Code = "R1",
                     OriginAirportId = 1,
+                    OriginAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
+                DestinationAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
                     DestinationAirportId = 2,
                     DistanceKm = 1000,
                     AverageFlightTimeMinutes = 120,
@@ -169,6 +249,26 @@ namespace Airline1.Tests.Services
                     Id = 2,
                     Code = "R2",
                     OriginAirportId = 3,
+                    OriginAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
+                DestinationAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
                     DestinationAirportId = 4,
                     DistanceKm = 2000,
                     AverageFlightTimeMinutes = 180,
@@ -199,6 +299,26 @@ namespace Airline1.Tests.Services
                 Code = "R2",
                 OriginAirportId = 3,
                 DestinationAirportId = 4,
+                OriginAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
+                DestinationAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
                 DistanceKm = 2000,
                 AverageFlightTimeMinutes = 180,
                 FrequencyWeekly = 3,
@@ -234,6 +354,26 @@ namespace Airline1.Tests.Services
             var existing = new FlightRoute {
                 Id = 5,
                 Code = "R5",
+                OriginAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
+                DestinationAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
                 OriginAirportId = 1,
                 DestinationAirportId = 2,
                 DistanceKm = 1000,
@@ -263,6 +403,26 @@ namespace Airline1.Tests.Services
             var existing = new FlightRoute {
                 Id = 5,
                 Code = "R5",
+                OriginAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
+                DestinationAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
                 OriginAirportId = 1,
                 DestinationAirportId = 3,
                 DistanceKm = 1000,
@@ -286,6 +446,26 @@ namespace Airline1.Tests.Services
                 Id = 6,
                 Code = "R5",
                 OriginAirportId = 1,
+                OriginAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
+                DestinationAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
                 DestinationAirportId = 2,
                 DistanceKm = 1000,
                 AverageFlightTimeMinutes = 120,
@@ -307,6 +487,26 @@ namespace Airline1.Tests.Services
                 Id = 5,
                 Code = "R5",
                 OriginAirportId = 1,
+                OriginAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
+                DestinationAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
                 DestinationAirportId = 3,
                 DistanceKm = 1000,
                 AverageFlightTimeMinutes = 120,
@@ -339,6 +539,26 @@ namespace Airline1.Tests.Services
             var existing = new FlightRoute {
                 Id = 7,
                 Code = "R7",
+                OriginAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
+                DestinationAirport = new Airport
+                {
+                    Id = 1,
+                    IataCode = "iata1",
+                    IcaoCode = "icao1",
+                    Name = "Airport1",
+                    City = "City1",
+                    Country = "Country1",
+                    TimeZone = "TZ1"
+                },
                 OriginAirportId = 1,
                 DestinationAirportId = 2,
                 DistanceKm = 1000,

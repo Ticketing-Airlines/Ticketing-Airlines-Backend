@@ -21,9 +21,9 @@ namespace Airline1.Tests.Controllers
         [Fact]
         public async Task Create_ReturnsCreated()
         {
-            var req = new CreateFlightStatusRequest { Code = "ON", Description = "On Time" };
+            var req = new CreateFlightStatusRequest {FlightId = 1, Status = Common.FlightStatusType.Scheduled };
             var created = new { Id = 1 };
-            _mockService.Setup(s => s.CreateAsync(req)).ReturnsAsync(created);
+            _mockService.Setup(s => s.CreateAsync(req));
             var result = await _controller.Create(req);
             Assert.IsType<CreatedAtActionResult>(result);
         }
