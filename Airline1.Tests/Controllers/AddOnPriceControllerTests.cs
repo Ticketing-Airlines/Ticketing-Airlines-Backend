@@ -21,10 +21,17 @@ namespace Airline1.Tests.Controllers
         [Fact]
         public async Task Create_ReturnsCreated()
         {
-            var req = new CreateAddOnPriceRequest();
+            var req = new CreateAddOnPriceRequest()
+            {
+                FlightId = 1,
+                AddOnId = 1,
+                PriceAmount = 50.0m,
+                Currency = "USD",
+                ValidFrom = System.DateTime.UtcNow,
+            };
             var created = new { Id = 1 };
-            _mockService.Setup(s => s.CreateAsync(req)).ReturnsAsync(created);
-            var result = await _controller.Create(req);
+            _mockService.Setup(s => s.CreateAsync(req));
+            var result = await _controller.CreatePriceRule(req);
             Assert.IsType<CreatedAtActionResult>(result);
         }
     }

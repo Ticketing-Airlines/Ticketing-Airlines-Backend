@@ -13,19 +13,25 @@ namespace Airline1.Tests.Services
     {
         private readonly Mock<IFlightPriceRepository> _mockRepo;
         private readonly FlightPriceService _service;
-        private readonly Mock<IMapper> _mapper
+        private readonly Mock<IMapper> _mapper;
 
         public FlightPriceServiceTests()
         {
             _mockRepo = new Mock<IFlightPriceRepository>();
-            _service = new FlightPriceService(_mockRepo.Object);
+            _service = new FlightPriceService(_mockRepo.Object,_mapper.Object);
         }
 
         [Fact]
         public async Task CreateAsync_ReturnsCreated()
         {
-            var req = new CreateFlightPriceRequest();
-            _mockRepo.Setup(r => r.AddAsync(It.IsAny<FlightPrice>())).ReturnsAsync(new FlightPrice { Id = 1 });
+            var req = new CreateFlightPriceRequest()
+            {
+                FlightBundleId = 1,
+                BasePrice = 100.0m,
+                FlightId = 1,
+                PassengerType = "Adult"
+            };
+            _mockRepo.Setup(r => r.AddAsync(It.IsAny<FlightPrice>()));
             var res = await _service.CreateAsync(req);
             Assert.Equal(1, res.Id);
         }
