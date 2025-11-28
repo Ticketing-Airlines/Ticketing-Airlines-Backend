@@ -21,8 +21,8 @@ namespace Airline1.Tests.Services
         [Fact]
         public async Task LoginAsync_ReturnsNull_WhenInvalid()
         {
-            var req = new LoginRequest { Email = "x@x.com", Password = "bad" };
-            _mockRepo.Setup(r => r.ValidateCredentialsAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync((User?)null);
+            var req = new LoginRequest { Email = "x@x.com" , Password = "wrongpassword"};
+            _mockRepo.Setup(r => r.GetByEmailAsync(It.IsAny<string>())).ReturnsAsync((User?)null);
             var res = await _service.LoginAsync(req);
             Assert.Null(res);
         }

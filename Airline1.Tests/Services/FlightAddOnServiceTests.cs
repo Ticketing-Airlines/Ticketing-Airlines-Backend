@@ -4,6 +4,7 @@ using Airline1.Services;
 using Airline1.IRepositories;
 using Airline1.Models;
 using System.Collections.Generic;
+using AutoMapper;
 
 namespace Airline1.Tests.Services
 {
@@ -11,11 +12,12 @@ namespace Airline1.Tests.Services
     {
         private readonly Mock<IFlightAddOnRepository> _mockRepo;
         private readonly FlightAddOnService _service;
+        private readonly Mock<IMapper> _mapper;
 
         public FlightAddOnServiceTests()
         {
             _mockRepo = new Mock<IFlightAddOnRepository>();
-            _service = new FlightAddOnService(_mockRepo.Object);
+            _service = new FlightAddOnService(_mockRepo.Object, _mapper.Object);
         }
 
         [Fact]

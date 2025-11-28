@@ -22,9 +22,11 @@ namespace Airline1.Tests.Controllers
         [Fact]
         public async Task Register_ReturnsOk()
         {
-            var req = new RegisterRequest { Email = "a@a.com", Password = "p" };
+            var req = new RegisterUserRequest { 
+                FirstName = "A", LastName = "B", PhoneNumber = "1234567890",
+                Email = "a@a.com", Password = "p" };
             var resp = new { Id = 1, Email = "a@a.com" };
-            _mockService.Setup(s => s.RegisterUserAsync(req)).ReturnsAsync(resp);
+            _mockService.Setup(s => s.RegisterUserAsync(req));
             var result = await _controller.Register(req);
             var ok = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(resp, ok.Value);
@@ -34,7 +36,7 @@ namespace Airline1.Tests.Controllers
         public async Task GetAllUsers_ReturnsOkList()
         {
             var list = new List<object> { new { Id = 1 } };
-            _mockService.Setup(s => s.GetAllUsersAsync()).ReturnsAsync(list);
+            _mockService.Setup(s => s.GetAllUsersAsync());
             var result = await _controller.GetAllUsers();
             var ok = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(list, ok.Value);

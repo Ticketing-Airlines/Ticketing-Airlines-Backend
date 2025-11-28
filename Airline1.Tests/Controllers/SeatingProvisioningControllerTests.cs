@@ -20,7 +20,7 @@ namespace Airline1.Tests.Controllers
         [Fact]
         public async Task ProvisionSeats_ReturnsOk()
         {
-            _mockService.Setup(s => s.ProvisionSeatsForAircraftAsync(1)).ReturnsAsync();
+            _mockService.Setup(s => s.ProvisionSeatsForAircraftAsync(1));
             var result = await _controller.ProvisionSeats(1);
             var ok = Assert.IsType<OkObjectResult>(result);
             Assert.Contains("Seats provisioned", ok.Value.ToString());
@@ -29,7 +29,7 @@ namespace Airline1.Tests.Controllers
         [Fact]
         public async Task RegenerateSeats_ReturnsOk()
         {
-            _mockService.Setup(s => s.RegenerateSeatsForAircraftAsync(1)).ReturnsAsync();
+            _mockService.Setup(s => s.RegenerateSeatsForAircraftAsync(1));
             var result = await _controller.RegenerateSeats(1);
             var ok = Assert.IsType<OkObjectResult>(result);
             Assert.Contains("Seats regenerated", ok.Value.ToString());

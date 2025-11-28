@@ -22,7 +22,7 @@ namespace Airline1.Tests.Controllers
         public async Task Login_ReturnsUnauthorized_WhenInvalid()
         {
             var request = new LoginRequest { Email = "x@x.com", Password = "bad" };
-            _mockService.Setup(s => s.LoginAsync(request)).ReturnsAsync((object?)null);
+            _mockService.Setup(s => s.LoginAsync(request));
             var result = await _controller.Login(request);
             Assert.IsType<UnauthorizedObjectResult>(result);
         }
@@ -32,7 +32,7 @@ namespace Airline1.Tests.Controllers
         {
             var request = new LoginRequest { Email = "u@u.com", Password = "pwd" };
             var resp = new { Token = "t" };
-            _mockService.Setup(s => s.LoginAsync(request)).ReturnsAsync(resp);
+            _mockService.Setup(s => s.LoginAsync(request));
             var result = await _controller.Login(request);
             var ok = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(resp, ok.Value);
