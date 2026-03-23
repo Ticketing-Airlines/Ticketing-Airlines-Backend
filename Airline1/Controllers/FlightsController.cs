@@ -16,6 +16,19 @@ namespace Airline1.Controllers
             return Ok(flights);
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> Search(
+            [FromQuery] string origin,
+         [FromQuery] string destination,
+         [FromQuery] DateTime date,
+         [FromQuery] int passengers = 1)
+            
+            {
+            var flights = await service.SearchFlightsAsync(origin, destination, date, passengers);
+            
+            return Ok(flights);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {

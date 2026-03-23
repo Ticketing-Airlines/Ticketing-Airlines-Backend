@@ -9,6 +9,17 @@ namespace Airline1.Services
 {
     public class FlightService(IFlightRepository repository, IMapper mapper) : IFlightService
     {
+
+        public async Task<IEnumerable<FlightResponse>> SearchFlightsAsync(string origin, string destination, DateTime departureDate, int passengerCount)
+     {
+            
+         var flights = await repository.SearchAsync(origin, destination, departureDate);
+    
+         // Map the result to your DTO
+         return mapper.Map<IEnumerable<FlightResponse>>(flights);
+    }
+
+
         public async Task<IEnumerable<FlightResponse>> GetAllAsync()
         {
             var flights = await repository.GetAllAsync();

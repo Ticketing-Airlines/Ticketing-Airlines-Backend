@@ -14,6 +14,11 @@ namespace Airline1.Mappings
         {
             // ... (Existing Mappings for Aircraft, FlightRoutes, Flights, FlightBundles, FlightPrice, etc.) ...
 
+            CreateMap<CreateAirportRequest, Airport>();
+            CreateMap<UpdateAirportRequest, Airport>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Airport, AirportResponse>();
+
             // Aircraft mappings (existing)
             CreateMap<CreateAircraftRequest, Aircraft>();
             CreateMap<UpdateAircraftRequest, Aircraft>()
