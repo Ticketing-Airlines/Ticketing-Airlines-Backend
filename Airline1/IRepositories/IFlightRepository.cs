@@ -10,9 +10,14 @@ namespace Airline1.IRepositories
         // Search for flights based on origin, destination, and departure date
         Task<IEnumerable<Flight>> SearchAsync(string origin, string destination, DateTime departureDate);
 
+        Task<Flight?> GetByFlightNumberAndDateAsync(string flightNumber, DateTime date);
+
+
         Task AddAsync(Flight flight);
         void UpdateAsync(Flight flight);
         void DeleteAsync(Flight flight);
         Task SaveChangesAsync();
+
+        
     }
 }
