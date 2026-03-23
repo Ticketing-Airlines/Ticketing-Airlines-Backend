@@ -37,11 +37,11 @@ namespace Airline1.Services
             foreach (var passengerRequest in request.Passengers)
             {
                 var priceResponse = await flightPriceService.GetCurrentPriceAsync(
-                    request.FlightId,
+                   request.FlightIds.FirstOrDefault(),
                     "Economy", // Assuming default CabinClass for now
                     request.FlightBundleId,
                     passengerRequest.PassengerType,
-                    now) ?? throw new InvalidOperationException($"Base price not found for Flight {request.FlightId}, Bundle {request.FlightBundleId}, Type {passengerRequest.PassengerType}.");
+                    now) ?? throw new InvalidOperationException($"Base price not found for Flight {request.FlightIds.FirstOrDefault()}, Bundle {request.FlightBundleId}, Type {passengerRequest.PassengerType}.");
 
                 // Base price + Bundle Increment
                 decimal passengerBaseFare = priceResponse.BasePrice + bundle.PriceIncrement;
@@ -85,7 +85,7 @@ namespace Airline1.Services
                 var booking = new Booking
                 {
                     Pnr = pnr,
-                    FlightId = request.FlightId,
+                    FlightId = request.FlightIds.FirstOrDefault(),
                     FlightBundleId = request.FlightBundleId,
                     UserId = request.UserId,
                     ContactEmail = request.ContactEmail,
