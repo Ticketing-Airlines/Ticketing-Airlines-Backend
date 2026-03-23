@@ -16,6 +16,23 @@ namespace Airline1.Controllers
             return Ok(flights);
         }
 
+        [HttpGet("status")]
+
+        public async Task<IActionResult> GetStatus(
+            [FromQuery] string flightNumber,
+            [FromQuery] DateTime date)
+        {
+            var flight = await service.GetFlightStatusAsync(flightNumber, date);
+
+            if (flight == null)
+            {
+                return NotFound($"Sorry, we couldn't find flight {flightNumber} on that date.");
+            }
+
+            return Ok(flight);
+        }
+            
+
         [HttpGet("search")]
         public async Task<IActionResult> Search(
             [FromQuery] string origin,
