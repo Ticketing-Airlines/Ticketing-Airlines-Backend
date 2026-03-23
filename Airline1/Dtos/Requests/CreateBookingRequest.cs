@@ -7,7 +7,7 @@ namespace Airline1.Dtos.Requests
     public class CreateBookingRequest
     {
         [Required]
-        public int FlightId { get; set; }
+        public List<int> FlightIds { get; set; } = new List<int>();
 
         [Required]
         public int FlightBundleId { get; set; }
@@ -24,7 +24,7 @@ namespace Airline1.Dtos.Requests
 
         // List of passengers for this booking
         [Required]
-        public List<CreateBookingPassengerRequest> Passengers { get; set; } = [];
+        public List<CreateBookingPassengerRequest> Passengers { get; set; } = new List<CreateBookingPassengerRequest>();
     }
 
     // Individual passenger details for creation
@@ -53,5 +53,7 @@ namespace Airline1.Dtos.Requests
 
         // Optional: List of AddOnPrice IDs (which contain FlightAddOn and FlightId context)
         public List<int> AddOnPriceIds { get; set; } = [];
+
+        
     }
 }
