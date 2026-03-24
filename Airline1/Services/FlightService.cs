@@ -19,6 +19,18 @@ namespace Airline1.Services
          return mapper.Map<IEnumerable<FlightResponse>>(flights);
     }
 
+        public async Task<FlightResponse?> GetFlightStatusAsync(string flightNumber, DateTime date)
+        {
+            var flight = await repository.GetByFlightNumberAndDateAsync(flightNumber, date);
+
+            if(flight == null)
+            
+                return null;
+            
+
+            return mapper.Map<FlightResponse>(flight);
+        }
+
 
         public async Task<IEnumerable<FlightResponse>> GetAllAsync()
         {

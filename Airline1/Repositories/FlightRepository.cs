@@ -44,6 +44,15 @@ namespace Airline1.Repositories
                 .ToListAsync();
         }
 
+        public async Task<Flight?> GetByFlightNumberAndDateAsync(string flightNumber, DateTime date)
+        {
+            return await db.Flights
+                .Include(f => f.Statuses)
+                .FirstOrDefaultAsync(f => f.FlightNumber == flightNumber && 
+               f.DepartureTime.Date == date.Date);
+
+        }
+
         public async Task AddAsync(Flight flight) => await db.Flights.AddAsync(flight);
 
         public void UpdateAsync(Flight flight) => db.Flights.Update(flight);
