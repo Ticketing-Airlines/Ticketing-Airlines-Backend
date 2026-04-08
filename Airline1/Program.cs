@@ -139,6 +139,9 @@ builder.Services.AddScoped<IFlightCostService, FlightCostService>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+ builder.Services.AddScoped<IBookingService, BookingService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

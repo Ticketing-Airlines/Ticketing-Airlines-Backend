@@ -16,7 +16,7 @@ namespace Airline1.Models
         public required string Pnr { get; set; }
 
         // --- Flight and Bundle Details ---
-        public required int FlightId { get; set; }
+        public ICollection<BookingFlight> BookingFlights { get; set; } = new List<BookingFlight>(); 
         public required int FlightBundleId { get; set; }
 
         // --- User/Guest Information ---
@@ -43,11 +43,6 @@ namespace Airline1.Models
         public DateTime? PaymentDate { get; set; }
         public DateTime? UpdatedAt { get; set; }
 
-        // --- Navigation Properties ---
-        [ForeignKey(nameof(FlightId))]
-        public Flight? Flight { get; set; }
-
-        [ForeignKey(nameof(FlightBundleId))]
         public FlightBundle? FlightBundle { get; set; }
 
         // One-to-Many relationship with passengers

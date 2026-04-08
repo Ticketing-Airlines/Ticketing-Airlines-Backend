@@ -7,7 +7,8 @@ namespace Airline1.Dtos.Responses
     {
         public int BookingId { get; set; }
         public string Pnr { get; set; } = null!;
-        public int FlightId { get; set; }
+
+        public List<FlightResponse> Flights { get; set; } = new List<FlightResponse>();
         public int FlightBundleId { get; set; }
         public string FlightBundleName { get; set; } = null!; // Display name for the bundle
 
