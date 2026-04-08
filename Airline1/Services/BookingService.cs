@@ -33,44 +33,49 @@ namespace Airline1.Services
             var bundle = await flightBundleRepo.GetByIdAsync(request.FlightBundleId)
                 ?? throw new KeyNotFoundException($"FlightBundle with ID {request.FlightBundleId} not found.");
 
-            // 2. Calculate Base Fare per passenger type
-            foreach (var passengerRequest in request.Passengers)
+            foreach (var flightId in request.FlightIds)
             {
-                var priceResponse = await flightPriceService.GetCurrentPriceAsync(
-                   request.FlightIds.FirstOrDefault(),
-                    "Economy", // Assuming default CabinClass for now
-                    request.FlightBundleId,
-                    passengerRequest.PassengerType,
-                    now) ?? throw new InvalidOperationException($"Base price not found for Flight {request.FlightIds.FirstOrDefault()}, Bundle {request.FlightBundleId}, Type {passengerRequest.PassengerType}.");
 
-                // Base price + Bundle Increment
-                decimal passengerBaseFare = priceResponse.BasePrice + bundle.PriceIncrement;
-                totalCost += passengerBaseFare;
-
-                // 3. Calculate Add-Ons (Baggage, Meals, etc.)
-                if (passengerRequest.AddOnPriceIds.Count != 0)
+                // 2. Calculate Base Fare per passenger type
+                foreach (var passengerRequest in request.Passengers)
                 {
-                    // Call the service to calculate the active cost of the requested add-ons
-                    totalCost += await addOnPriceService.GetTotalCostByIdsAsync(passengerRequest.AddOnPriceIds);
-                }
+                    var priceResponse = await flightPriceService.GetCurrentPriceAsync(
+                       flightId,
+                        "Economy", // Assuming default CabinClass for now
+                        request.FlightBundleId,
+                        passengerRequest.PassengerType,
+                        now) ?? throw new InvalidOperationException($"Base price not found for Flight {request.FlightIds.FirstOrDefault()}, Bundle {request.FlightBundleId}, Type {passengerRequest.PassengerType}.");
 
-                // 4. Calculate Seat Cost (The FlightSeat.PriceAmount is what links to the cost)
-                if (passengerRequest.FlightSeatId.HasValue)
-                {
-                    // NOTE: This call only retrieves the seat. The actual reservation logic and checks happen in CreateAsync.
-                    var fs = await flightSeatService.GetByIdAsync(passengerRequest.FlightSeatId.Value)
-                        ?? throw new KeyNotFoundException($"FlightSeat with ID {passengerRequest.FlightSeatId.Value} not found.");
+                    // Base price + Bundle Increment
+                    decimal passengerBaseFare = priceResponse.BasePrice + bundle.PriceIncrement;
+                    totalCost += passengerBaseFare;
 
-                    if (fs.PriceAmount.HasValue)
+                    // 3. Calculate Add-Ons (Baggage, Meals, etc.)
+                    if (passengerRequest.AddOnPriceIds.Count != 0)
                     {
-                        totalCost += fs.PriceAmount.Value;
+                        // Call the service to calculate the active cost of the requested add-ons
+                        totalCost += await addOnPriceService.GetTotalCostByIdsAsync(passengerRequest.AddOnPriceIds);
+                    }
+
+                    // 4. Calculate Seat Cost (The FlightSeat.PriceAmount is what links to the cost)
+                    if (passengerRequest.FlightSeatId.HasValue)
+                    {
+                        // NOTE: This call only retrieves the seat. The actual reservation logic and checks happen in CreateAsync.
+                        var fs = await flightSeatService.GetByIdAsync(passengerRequest.FlightSeatId.Value)
+                            ?? throw new KeyNotFoundException($"FlightSeat with ID {passengerRequest.FlightSeatId.Value} not found.");
+
+                        if (fs.PriceAmount.HasValue)
+                        {
+                            totalCost += fs.PriceAmount.Value;
+                        }
                     }
                 }
+
+               
             }
-
-            return totalCost;
+             return totalCost;
         }
-
+ 
         public async Task<BookingResponse> CreateAsync(CreateBookingRequest request)
         {
             // Use an explicit transaction to ensure all database writes succeed or fail together
@@ -85,7 +90,6 @@ namespace Airline1.Services
                 var booking = new Booking
                 {
                     Pnr = pnr,
-                    FlightId = request.FlightIds.FirstOrDefault(),
                     FlightBundleId = request.FlightBundleId,
                     UserId = request.UserId,
                     ContactEmail = request.ContactEmail,
@@ -95,6 +99,14 @@ namespace Airline1.Services
                     Status = "PendingPayment",
                     BookingDate = DateTime.UtcNow
                 };
+
+                foreach(var fId in request.FlightIds)
+                {
+                    booking.BookingFlights.Add(new BookingFlight
+                    {
+                        FlightId = fId
+                    });
+                }
 
                 await bookingRepo.AddAsync(booking);
                 await bookingRepo.SaveChangesAsync(); // Get the generated BookingId
