@@ -26,6 +26,8 @@ namespace Airline1.Data
         public DbSet<FlightStatusReason> FlightStatusReasons { get; set; } = null!;
         public DbSet<FlightPrice> FlightPrices { get; set; } = null!;
 
+        public DbSet<BookingFlight> BookingFlights { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
