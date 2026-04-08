@@ -17,13 +17,24 @@ namespace Airline1.Repositories
         {
             return _db.Bookings
                 .Include(b => b.FlightBundle)
+                .Include(b => b.BookingFlights)
+                    .ThenInclude(bf => bf.Flight)
+                        .ThenInclude(f => f.Aircraft)
+                .Include(b => b.BookingFlights)
+                    .ThenInclude(bf => bf.Flight)
+                        .ThenInclude(f => f.Route)
+                            .ThenInclude(r => r.OriginAirport)
+                .Include(b => b.BookingFlights)
+                    .ThenInclude(bf => bf.Flight)
+                        .ThenInclude(f => f.Route)
+                            .ThenInclude(r => r.DestinationAirport)
                 .Include(b => b.Passengers)
                     .ThenInclude(p => p.FlightSeat)
-                        .ThenInclude(fs => fs!.Seat) // Include the actual seat details (SeatNumber)
+                        .ThenInclude(fs => fs!.Seat)
                 .Include(b => b.Passengers)
                     .ThenInclude(p => p.AddOns)
                         .ThenInclude(ba => ba.AddOnPrice)
-                            .ThenInclude(ap => ap!.AddOn); // Include AddOn details (Name, Code)
+                            .ThenInclude(ap => ap!.AddOn);
         }
 
         public async Task<Booking?> GetByIdAsync(int id)
