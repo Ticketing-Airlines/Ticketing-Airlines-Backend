@@ -131,9 +131,10 @@ namespace Airline1.Mappings
                 .ForMember(dest => dest.BookingId, opt => opt.Ignore())
                 .ForMember(dest => dest.AddOns, opt => opt.Ignore());
 
+
             CreateMap<Booking, BookingResponse>()
-                .ForMember(dest => dest.FlightBundleName, opt => opt.MapFrom(src => src.FlightBundle != null ? src.FlightBundle.Name : null))
-                .ForMember(dest => dest.Passengers, opt => opt.MapFrom(src => src.Passengers));
+                 .ForMember(dest => dest.Flights,
+                   opt => opt.MapFrom(src => src.BookingFlights.Select(bf => bf.Flight)));
 
             CreateMap<BookingPassenger, BookingPassengerResponse>()
                 .ForMember(dest => dest.SeatNumber, opt => opt.MapFrom(src => src.FlightSeat!.Seat!.SeatNumber))
