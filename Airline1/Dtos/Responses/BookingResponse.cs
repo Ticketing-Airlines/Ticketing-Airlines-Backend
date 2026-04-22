@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Airline1.Dtos.Responses
 {
     // Full response for a single booking transaction
     public class BookingResponse
     {
-        public int BookingId { get; set; }
+        public Guid BookingId { get; set; }
         public string Pnr { get; set; } = null!;
 
         public List<FlightResponse> Flights { get; set; } = new List<FlightResponse>();
@@ -38,7 +38,7 @@ namespace Airline1.Dtos.Responses
         public string PassengerType { get; set; } = null!;
 
         // Seat Info
-        public int? FlightSeatId { get; set; }
+        public Guid? FlightSeatId { get; set; }
         public string? SeatNumber { get; set; }
 
         // Add-Ons Info
