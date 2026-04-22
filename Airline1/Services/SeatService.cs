@@ -1,4 +1,4 @@
-﻿using Airline1.Dtos.Requests;
+using Airline1.Dtos.Requests;
 using Airline1.Dtos.Responses;
 using Airline1.IRepositories;
 using Airline1.IService;
@@ -23,13 +23,13 @@ namespace Airline1.Services
             return mapper.Map<SeatResponse>(created);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(Guid id)
         {
             var seat = await repo.GetByIdAsync(id) ?? throw new KeyNotFoundException($"Seat {id} not found.");
             await repo.DeleteAsync(seat);
         }
 
-        public async Task<SeatResponse> GetByIdAsync(int id)
+        public async Task<SeatResponse> GetByIdAsync(Guid id)
         {
             var seat = await repo.GetByIdAsync(id) ?? throw new KeyNotFoundException($"Seat {id} not found.");
             return mapper.Map<SeatResponse>(seat);
@@ -41,7 +41,7 @@ namespace Airline1.Services
             return seats.Select(s => mapper.Map<SeatResponse>(s));
         }
 
-        public async Task<SeatResponse> UpdateAsync(int id, UpdateSeatRequest request)
+        public async Task<SeatResponse> UpdateAsync(Guid id, UpdateSeatRequest request)
         {
             var seat = await repo.GetByIdAsync(id) ?? throw new KeyNotFoundException($"Seat {id} not found.");
 
