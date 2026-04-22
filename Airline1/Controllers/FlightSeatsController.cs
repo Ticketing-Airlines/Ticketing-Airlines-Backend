@@ -1,4 +1,4 @@
-﻿using Airline1.Dtos.Requests;
+using Airline1.Dtos.Requests;
 using Airline1.Dtos.Responses;
 using Airline1.IService;
 using Microsoft.AspNetCore.Mvc;
@@ -36,10 +36,10 @@ namespace Airline1.Controllers
         // -----------------------------------------------------------
         // 2. GET: Single Seat Status/Price Lookup (Helper Read)
         // -----------------------------------------------------------
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:guid}")]
         [ProducesResponseType(200, Type = typeof(FlightSeatResponse))]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(Guid id)
         {
             try
             {
@@ -59,11 +59,11 @@ namespace Airline1.Controllers
         /// Reserves an available seat (Available -> Booked).
         /// </summary>
         /// <param name="flightSeatId">The ID of the specific FlightSeat.</param>
-        [HttpPost("{flightSeatId:int}/reserve")]
+        [HttpPost("{flightSeatId:guid}/reserve")]
         [ProducesResponseType(200, Type = typeof(FlightSeatResponse))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> ReserveSeat(int flightSeatId, [FromBody] ReserveFlightSeatRequest request)
+        public async Task<IActionResult> ReserveSeat(Guid flightSeatId, [FromBody] ReserveFlightSeatRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -90,11 +90,11 @@ namespace Airline1.Controllers
         /// Assigns a seat to a passenger during check-in (Booked -> CheckedIn).
         /// </summary>
         /// <param name="flightSeatId">The ID of the specific FlightSeat.</param>
-        [HttpPost("{flightSeatId:int}/assign")]
+        [HttpPost("{flightSeatId:guid}/assign")]
         [ProducesResponseType(200, Type = typeof(FlightSeatResponse))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> AssignSeat(int flightSeatId, [FromBody] AssignFlightSeatRequest request)
+        public async Task<IActionResult> AssignSeat(Guid flightSeatId, [FromBody] AssignFlightSeatRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -121,11 +121,11 @@ namespace Airline1.Controllers
         /// Blocks a seat from selection for administrative reasons (Any Status -> Blocked).
         /// </summary>
         /// <param name="flightSeatId">The ID of the specific FlightSeat.</param>
-        [HttpPost("{flightSeatId:int}/block")]
+        [HttpPost("{flightSeatId:guid}/block")]
         [ProducesResponseType(200, Type = typeof(FlightSeatResponse))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> Block(int flightSeatId, [FromBody] BlockFlightSeatRequest request)
+        public async Task<IActionResult> Block(Guid flightSeatId, [FromBody] BlockFlightSeatRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
