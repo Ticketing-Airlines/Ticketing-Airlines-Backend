@@ -1,4 +1,4 @@
-﻿using Airline1.Data;
+using Airline1.Data;
 using Airline1.IRepositories;
 using Airline1.Models;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +8,7 @@ namespace Airline1.Repositories
 {
     public class FlightSeatRepository(AppDbContext db) : IFlightSeatRepository
     {
-        public async Task<FlightSeat?> GetByIdAsync(int id)
+        public async Task<FlightSeat?> GetByIdAsync(Guid id)
         {
             return await db.FlightSeats
                 .Include(fs => fs.Seat)
