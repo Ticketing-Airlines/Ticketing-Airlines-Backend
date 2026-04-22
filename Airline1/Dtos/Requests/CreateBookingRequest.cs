@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Airline1.Dtos.Requests
@@ -49,7 +49,7 @@ namespace Airline1.Dtos.Requests
         public required string PassengerType { get; set; } = "ADT";
 
         // Optional: Selected seat for this passenger
-        public int? FlightSeatId { get; set; }
+        public Guid? FlightSeatId { get; set; }
 
         // Optional: List of AddOnPrice IDs (which contain FlightAddOn and FlightId context)
         public List<int> AddOnPriceIds { get; set; } = [];
