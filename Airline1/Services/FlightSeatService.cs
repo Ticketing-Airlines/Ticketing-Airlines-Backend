@@ -1,4 +1,4 @@
-﻿using Airline1.Data;
+using Airline1.Data;
 using Airline1.Dtos.Requests;
 using Airline1.Dtos.Responses;
 using Airline1.IRepositories;
@@ -91,10 +91,10 @@ namespace Airline1.Services
         }
 
         // Reserve: Available -> Booked (transactional)
-        public async Task<FlightSeatResponse> ReserveSeatAsync(int flightSeatId, ReserveFlightSeatRequest request)
+        public async Task<FlightSeatResponse> ReserveSeatAsync(Guid flightSeatId, ReserveFlightSeatRequest request)
         {
-            // Use explicit transaction to guarantee atomicity with other operations (e.g., payment)
-            await using var tx = await _db.Database.BeginTransactionAsync();
+            // NOTE: This method relies on the caller (BookingService) to manage the transaction.
+            // Do NOT start a new transaction here — it will cause a nested transaction conflict.
 
             var fs = await _db.FlightSeats
                 .FirstOrDefaultAsync(x => x.FlightSeatId == flightSeatId) ?? throw new KeyNotFoundException($"FlightSeat {flightSeatId} not found.");
@@ -112,8 +112,6 @@ namespace Airline1.Services
             _db.FlightSeats.Update(fs);
             await _db.SaveChangesAsync();
 
-            await tx.CommitAsync();
-
             // --- 2. Map Response and Include Price ---
             // Note: We need to load the 'Seat' navigation property for SeatNumber to work in MapToResponseWithPriceAsync
             // In a production repo, GetByIdAsync should include Seat, but since we used _db.FlightSeats here, we load it now.
@@ -123,7 +121,7 @@ namespace Airline1.Services
         }
 
         // Assign: Booked -> CheckedIn
-        public async Task<FlightSeatResponse> AssignSeatAsync(int flightSeatId, AssignFlightSeatRequest request)
+        public async Task<FlightSeatResponse> AssignSeatAsync(Guid flightSeatId, AssignFlightSeatRequest request)
         {
             var fs = await _repo.GetByIdAsync(flightSeatId) // Assuming GetByIdAsync includes the Seat navigation property
                 ?? throw new KeyNotFoundException($"FlightSeat {flightSeatId} not found.");
@@ -142,7 +140,7 @@ namespace Airline1.Services
         }
 
         // Block: any -> Blocked (admin)
-        public async Task<FlightSeatResponse> BlockSeatAsync(int flightSeatId, BlockFlightSeatRequest request)
+        public async Task<FlightSeatResponse> BlockSeatAsync(Guid flightSeatId, BlockFlightSeatRequest request)
         {
             var fs = await _repo.GetByIdAsync(flightSeatId)
                 ?? throw new KeyNotFoundException($"FlightSeat {flightSeatId} not found.");
@@ -170,7 +168,7 @@ namespace Airline1.Services
             return responses;
         }
 
-        public async Task<FlightSeatResponse> GetByIdAsync(int id)
+        public async Task<FlightSeatResponse> GetByIdAsync(Guid id)
         {
             var fs = await _repo.GetByIdAsync(id) ?? throw new KeyNotFoundException($"FlightSeat {id} not found.");
 

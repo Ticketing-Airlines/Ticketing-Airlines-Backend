@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -9,7 +9,7 @@ namespace Airline1.Models
     public class Booking
     {
         [Key]
-        public int BookingId { get; set; }
+        public Guid BookingId { get; set; } = Guid.NewGuid();
 
         // PNR-like record locator
         [MaxLength(6)]

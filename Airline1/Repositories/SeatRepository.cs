@@ -1,4 +1,4 @@
-﻿using Airline1.Data;
+using Airline1.Data;
 using Airline1.IRepositories;
 using Airline1.Models;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +17,7 @@ namespace Airline1.Repositories
             return seat;
         }
 
-        public async Task<Seat?> GetByIdAsync(int id)
+        public async Task<Seat?> GetByIdAsync(Guid id)
         {
             return await _context.Seats
                 .AsNoTracking()

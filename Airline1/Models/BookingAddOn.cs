@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Airline1.Models
@@ -9,7 +9,7 @@ namespace Airline1.Models
         [Key]
         public int BookingAddOnId { get; set; }
 
-        public required int PassengerId { get; set; } // Links to BookingPassenger
+        public required Guid PassengerId { get; set; } // Links to BookingPassenger
 
         // The specific price rule that was active at the time of booking
         public required int AddOnPriceId { get; set; }

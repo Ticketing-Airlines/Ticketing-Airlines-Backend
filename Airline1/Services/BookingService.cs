@@ -1,15 +1,10 @@
-﻿using Airline1.Data;
+using Airline1.Data;
 using Airline1.Dtos.Requests;
 using Airline1.Dtos.Responses;
 using Airline1.IRepositories;
 using Airline1.IService;
 using Airline1.Models;
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Airline1.Services
 {
@@ -71,11 +66,11 @@ namespace Airline1.Services
                     }
                 }
 
-               
+
             }
-             return totalCost;
+            return totalCost;
         }
- 
+
         public async Task<BookingResponse> CreateAsync(CreateBookingRequest request)
         {
             // Use an explicit transaction to ensure all database writes succeed or fail together
@@ -89,6 +84,7 @@ namespace Airline1.Services
                 // --- 2. Create the Booking Entity ---
                 var booking = new Booking
                 {
+                    BookingId = Guid.NewGuid(),
                     Pnr = pnr,
                     FlightBundleId = request.FlightBundleId,
                     UserId = request.UserId,
@@ -100,7 +96,7 @@ namespace Airline1.Services
                     BookingDate = DateTime.UtcNow
                 };
 
-                foreach(var fId in request.FlightIds)
+                foreach (var fId in request.FlightIds)
                 {
                     booking.BookingFlights.Add(new BookingFlight
                     {
@@ -109,11 +105,21 @@ namespace Airline1.Services
                 }
 
                 await bookingRepo.AddAsync(booking);
-                await bookingRepo.SaveChangesAsync(); // Get the generated BookingId
+                await bookingRepo.SaveChangesAsync(); // Persist booking with assigned BookingId
 
                 // --- 3. Process Passengers, Add-Ons, and Reserve Seats ---
                 foreach (var pReq in request.Passengers)
                 {
+                    if (pReq.FlightSeatId.HasValue)
+                    {
+                        var seatStatus = await flightSeatService.GetByIdAsync(pReq.FlightSeatId.Value);
+
+                        if (seatStatus != null && seatStatus.Status != "Available")
+                        {
+                            throw new InvalidOperationException($"Seat {seatStatus.SeatNumber} is already taken by someone else!.");
+                        }
+                    }
+
                     var passenger = mapper.Map<BookingPassenger>(pReq);
                     passenger.BookingId = booking.BookingId;
 
@@ -177,7 +183,7 @@ namespace Airline1.Services
 
         // --- Retrieval Methods ---
 
-        public async Task<BookingResponse?> GetByIdAsync(int id)
+        public async Task<BookingResponse?> GetByIdAsync(Guid id)
         {
             var booking = await bookingRepo.GetByIdAsync(id);
             return booking == null ? null : mapper.Map<BookingResponse>(booking);

@@ -1,10 +1,10 @@
-﻿namespace Airline1.Models
+namespace Airline1.Models
 {
     public class BookingFlight
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-        public int BookingId { get; set; }
+        public Guid BookingId { get; set; }
 
         public Booking? Booking { get; set; }
 

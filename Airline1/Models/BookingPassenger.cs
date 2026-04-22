@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -9,9 +9,9 @@ namespace Airline1.Models
     public class BookingPassenger
     {
         [Key]
-        public int BookingPassengerId { get; set; }
+        public Guid BookingPassengerId { get; set; } = Guid.NewGuid();
 
-        public required int BookingId { get; set; }
+        public required Guid BookingId { get; set; } 
 
         // --- Identity ---
         [MaxLength(50)]
@@ -34,7 +34,7 @@ namespace Airline1.Models
 
         // --- Seat Assignment ---
         // Nullable foreign key to FlightSeat
-        public int? FlightSeatId { get; set; }
+        public Guid? FlightSeatId { get; set; }
 
         // --- Add-Ons ---
         // List of AddOnPrice IDs purchased for THIS passenger (e.g., extra bags, meals)
