@@ -1,4 +1,4 @@
-﻿using Airline1.Data;
+using Airline1.Data;
 using Airline1.IRepositories;
 using Airline1.Models;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +37,7 @@ namespace Airline1.Repositories
                             .ThenInclude(ap => ap!.AddOn);
         }
 
-        public async Task<Booking?> GetByIdAsync(int id)
+        public async Task<Booking?> GetByIdAsync(Guid id)
         {
             return await GetBookingQuery().FirstOrDefaultAsync(b => b.BookingId == id);
         }
