@@ -1,8 +1,8 @@
-﻿namespace Airline1.Dtos.Responses
+namespace Airline1.Dtos.Responses
 {
     public class SeatResponse
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public int AircraftId { get; set; }
         public string SeatNumber { get; set; } = string.Empty;
         public string SeatClass { get; set; } = string.Empty;
