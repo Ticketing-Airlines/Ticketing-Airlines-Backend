@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -18,7 +18,7 @@ namespace Airline1.Models
         public Flight? Flight { get; set; } // Navigation property (Fixes 'Flight' error)
 
         [ForeignKey(nameof(Booking))]
-        public int BookingId { get; set; } // Foreign key for the Booking/Ticket
+        public Guid BookingId { get; set; } // Foreign key for the Booking/Ticket
         public Booking? Booking { get; set; }
 
         [MaxLength(50)]
