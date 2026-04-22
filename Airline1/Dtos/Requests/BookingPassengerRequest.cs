@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Airline1.Dtos.Requests
 {
@@ -20,7 +20,7 @@ namespace Airline1.Dtos.Requests
         public required DateTime DateOfBirth { get; set; }
 
         // Seat and Add-Ons
-        public int? FlightSeatId { get; set; } // The specific seat ID (FlightSeat.FlightSeatId)
+        public Guid? FlightSeatId { get; set; } // The specific seat ID (FlightSeat.FlightSeatId)
 
         public List<int>? AddOnPriceIds { get; set; } = []; // List of purchased AddOnPrice IDs
     }
