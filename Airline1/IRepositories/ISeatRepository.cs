@@ -1,4 +1,4 @@
-﻿using Airline1.Models;
+using Airline1.Models;
 
 namespace Airline1.IRepositories
 {
@@ -8,7 +8,7 @@ namespace Airline1.IRepositories
         Task DeleteRangeAsync(IEnumerable<Seat> seats);
         Task SaveChangesAsync();
         Task<Seat> AddAsync(Seat seat);
-        Task<Seat?> GetByIdAsync(int id);
+        Task<Seat?> GetByIdAsync(Guid id);
         Task<IEnumerable<Seat>> GetByAircraftAsync(int aircraftId);
         Task<Seat> UpdateAsync(Seat seat);
         Task DeleteAsync(Seat seat);
