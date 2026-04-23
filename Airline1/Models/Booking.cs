@@ -39,6 +39,12 @@ namespace Airline1.Models
         [MaxLength(50)]
         public required string Status { get; set; } = "PendingPayment"; // PendingPayment, Confirmed, Cancelled, Completed
 
+        [MaxLength(50)]
+        public string? PaymentMethod { get; set; } // GCash, PayMaya, CreditCard
+
+        [MaxLength(100)]
+        public string? PaymentReference { get; set; } // Transaction reference from payment gateway
+
         public DateTime BookingDate { get; set; } = DateTime.UtcNow;
         public DateTime? PaymentDate { get; set; }
         public DateTime? UpdatedAt { get; set; }
