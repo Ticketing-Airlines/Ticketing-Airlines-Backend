@@ -19,9 +19,11 @@ namespace Airline1.Dtos.Responses
         public decimal TotalPrice { get; set; }
         public string Currency { get; set; } = null!;
         public string Status { get; set; } = null!;
+        public string? PaymentMethod { get; set; }
 
         public System.DateTime BookingDate { get; set; }
         public System.DateTime? PaymentDate { get; set; }
+        public string? PaymentReference { get; set; }
 
         public List<BookingPassengerResponse> Passengers { get; set; } = [];
     }

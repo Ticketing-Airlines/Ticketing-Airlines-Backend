@@ -12,6 +12,7 @@ namespace Airline1.IService
         Task<BookingResponse?> GetByPnrAsync(string pnr);
         Task<BookingResponse?> UpdateStatusAsync(string pnr, string newStatus);
         Task<BookingResponse?> UpdateContactInfoAsync(string pnr, UpdateBookingRequest request);
+        Task<BookingResponse?> ConfirmPaymentAsync(string pnr, ConfirmPaymentRequest request);
         Task<decimal> CalculateTotalCostAsync(CreateBookingRequest request);
         Task<IEnumerable<BookingResponse>> GetByUserIdAsync(int userId);
     }

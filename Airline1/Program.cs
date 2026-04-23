@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
 using System.Reflection;
 using System.Text;
 
@@ -142,6 +143,19 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
  builder.Services.AddScoped<IBookingService, BookingService>();
 
+builder.Services.AddScoped<IPaymentService, MockPaymentService>();
+
+// CORS Registration
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -150,12 +164,17 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Airline1 API v1"));
+    app.MapScalarApiReference(options =>
+    {
+        options.OpenApiRoutePattern = "/swagger/v1/swagger.json";
+    });
 }
 
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 

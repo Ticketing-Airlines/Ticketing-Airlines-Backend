@@ -1,5 +1,6 @@
-﻿using Airline1.Dtos.Requests;
+using Airline1.Dtos.Requests;
 using Airline1.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Airline1.Controllers
@@ -53,6 +54,24 @@ namespace Airline1.Controllers
                 return updated == null ? NotFound() : Ok(updated);
             }
             catch (System.Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Confirms a booking by processing payment and moving status to Confirmed.
+        /// </summary>
+        [Authorize]
+        [HttpPost("{pnr}/confirm")]
+        public async Task<IActionResult> ConfirmBooking(string pnr, [FromBody] ConfirmPaymentRequest request)
+        {
+            try
+            {
+                var updated = await _bookingService.ConfirmPaymentAsync(pnr, request);
+                return updated == null ? NotFound() : Ok(updated);
+            }
+            catch (System.InvalidOperationException ex)
             {
                 return BadRequest(new { error = ex.Message });
             }
