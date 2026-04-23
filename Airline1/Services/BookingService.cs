@@ -268,6 +268,7 @@ namespace Airline1.Services
                 booking.Status = "Confirmed";
                 booking.PaymentMethod = request.PaymentMethod;
                 booking.PaymentDate = DateTime.UtcNow;
+                booking.PaymentReference = transactionRef;
                 booking.UpdatedAt = DateTime.UtcNow;
 
                 await bookingRepo.UpdateAsync(booking);
