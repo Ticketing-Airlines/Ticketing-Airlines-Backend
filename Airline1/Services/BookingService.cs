@@ -15,6 +15,7 @@ namespace Airline1.Services
         IFlightSeatService flightSeatService,
         IFlightBundleRepository flightBundleRepo,
         IAddOnPriceRepository addOnPriceRepo,
+        IPaymentService paymentService,
         AppDbContext db,
         IMapper mapper) : IBookingService
     {
@@ -240,6 +241,46 @@ namespace Airline1.Services
             await bookingRepo.UpdateAsync(booking);
             await bookingRepo.SaveChangesAsync();
             return mapper.Map<BookingResponse>(booking);
+        }
+
+        public async Task<BookingResponse?> ConfirmPaymentAsync(string pnr, ConfirmPaymentRequest request)
+        {
+            var booking = await bookingRepo.GetByPnrAsync(pnr);
+            if (booking == null) return null;
+
+            if (booking.Status != "PendingPayment")
+                throw new InvalidOperationException($"Booking is already {booking.Status}. Cannot process payment.");
+
+            if (request.SimulateFailure)
+                throw new InvalidOperationException($"Mock {request.PaymentMethod} payment failed for booking {pnr}.");
+
+            await using var transaction = await db.Database.BeginTransactionAsync();
+            try
+            {
+                // Process mock payment
+                var transactionRef = await paymentService.ProcessPaymentAsync(
+                    booking.TotalPrice,
+                    booking.Currency,
+                    request.PaymentMethod,
+                    booking.Pnr);
+
+                // Update booking status
+                booking.Status = "Confirmed";
+                booking.PaymentMethod = request.PaymentMethod;
+                booking.PaymentDate = DateTime.UtcNow;
+                booking.UpdatedAt = DateTime.UtcNow;
+
+                await bookingRepo.UpdateAsync(booking);
+                await bookingRepo.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return mapper.Map<BookingResponse>(booking);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }
