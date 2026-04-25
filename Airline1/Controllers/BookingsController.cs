@@ -105,6 +105,24 @@ namespace Airline1.Controllers
         }
 
         /// <summary>
+        /// Archives (cancels) a booking and releases all reserved seats.
+        /// Uses the string PNR as the unique identifier (Task 6).
+        /// </summary>
+        [HttpPost("archive")]
+        public async Task<IActionResult> ArchiveBooking([FromBody] ArchiveBookingRequest request)
+        {
+            try
+            {
+                var archived = await _bookingService.ArchiveBookingAsync(request.BookingId);
+                return archived == null ? NotFound() : Ok(archived);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Pre-calculates the price for a potential booking.
         /// </summary>
         [HttpPost("calculate-cost")]
