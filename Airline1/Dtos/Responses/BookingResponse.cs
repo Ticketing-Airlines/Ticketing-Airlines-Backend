@@ -5,7 +5,7 @@ namespace Airline1.Dtos.Responses
     // Full response for a single booking transaction
     public class BookingResponse
     {
-        public Guid BookingId { get; set; }
+        public string BookingId { get; set; }
         public string Pnr { get; set; } = null!;
 
         public List<FlightResponse> Flights { get; set; } = new List<FlightResponse>();
@@ -31,7 +31,7 @@ namespace Airline1.Dtos.Responses
     // Response for an individual passenger within a booking
     public class BookingPassengerResponse
     {
-        public int PassengerId { get; set; }
+        public string PassengerId { get; set; }
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public string? MiddleName { get; set; }
@@ -40,7 +40,7 @@ namespace Airline1.Dtos.Responses
         public string PassengerType { get; set; } = null!;
 
         // Seat Info
-        public Guid? FlightSeatId { get; set; }
+        public string? FlightSeatId { get; set; }
         public string? SeatNumber { get; set; }
 
         // Add-Ons Info
