@@ -62,7 +62,7 @@ namespace Airline1.Controllers
         /// <summary>
         /// Confirms a booking by processing payment and moving status to Confirmed.
         /// </summary>
-        [Authorize]
+        //[Authorize]
         [HttpPost("{pnr}/confirm")]
         public async Task<IActionResult> ConfirmBooking(string pnr, [FromBody] ConfirmPaymentRequest request)
         {

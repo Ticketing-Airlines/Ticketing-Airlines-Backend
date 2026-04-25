@@ -234,6 +234,11 @@ namespace Airline1.Services
             var booking = await bookingRepo.GetByPnrAsync(pnr);
             if (booking == null) return null;
 
+            // Guard Clause: Validate booking state before updating
+            if (booking.Status == "Cancelled")
+                throw new InvalidOperationException("Cannot update a cancelled booking!");
+
+            // Partial Update: Only change fields that were provided
             if (request.ContactEmail != null) booking.ContactEmail = request.ContactEmail;
             if (request.ContactPhone != null) booking.ContactPhone = request.ContactPhone;
 
