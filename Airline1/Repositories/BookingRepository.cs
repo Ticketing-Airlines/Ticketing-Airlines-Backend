@@ -44,7 +44,27 @@ namespace Airline1.Repositories
 
         public async Task<Booking?> GetByPnrAsync(string pnr)
         {
-            return await GetBookingQuery().FirstOrDefaultAsync(b => b.Pnr == pnr);
+            // Dig Deep: Explicitly include Passengers and their FlightSeats so we can "Erase" the seat during cancellation!
+            return await _db.Bookings
+                .Include(b => b.Passengers)
+                    .ThenInclude(p => p.FlightSeat)
+                .Include(b => b.FlightBundle)
+                .Include(b => b.BookingFlights)
+                    .ThenInclude(bf => bf.Flight)
+                        .ThenInclude(f => f.Aircraft)
+                .Include(b => b.BookingFlights)
+                    .ThenInclude(bf => bf.Flight)
+                        .ThenInclude(f => f.Route)
+                            .ThenInclude(r => r.OriginAirport)
+                .Include(b => b.BookingFlights)
+                    .ThenInclude(bf => bf.Flight)
+                        .ThenInclude(f => f.Route)
+                            .ThenInclude(r => r.DestinationAirport)
+                .Include(b => b.Passengers)
+                    .ThenInclude(p => p.AddOns)
+                        .ThenInclude(ba => ba.AddOnPrice)
+                            .ThenInclude(ap => ap!.AddOn)
+                .FirstOrDefaultAsync(b => b.Pnr == pnr);
         }
 
         public async Task<IEnumerable<Booking>> GetByUserIdAsync(int userId)
