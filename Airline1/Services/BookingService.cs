@@ -5,6 +5,7 @@ using Airline1.IRepositories;
 using Airline1.IService;
 using Airline1.Models;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace Airline1.Services
 {
@@ -251,9 +252,6 @@ namespace Airline1.Services
             if (booking.Status != "PendingPayment")
                 throw new InvalidOperationException($"Booking is already {booking.Status}. Cannot process payment.");
 
-            if (request.SimulateFailure)
-                throw new InvalidOperationException($"Mock {request.PaymentMethod} payment failed for booking {pnr}.");
-
             await using var transaction = await db.Database.BeginTransactionAsync();
             try
             {
@@ -276,6 +274,57 @@ namespace Airline1.Services
                 await transaction.CommitAsync();
 
                 return mapper.Map<BookingResponse>(booking);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Archives (cancels) a booking and releases all associated flight seats.
+        /// Uses the string PNR as the unique identifier (Task 6).
+        /// </summary>
+        public async Task<BookingResponse?> ArchiveBookingAsync(string pnr)
+        {
+            var booking = await bookingRepo.GetByPnrAsync(pnr);
+            if (booking == null) return null;
+
+            if (booking.Status == "Cancelled")
+                throw new InvalidOperationException("Booking is already cancelled.");
+
+            await using var transaction = await db.Database.BeginTransactionAsync();
+            try
+            {
+                // 1. Set booking status to Cancelled
+                booking.Status = "Cancelled";
+                booking.UpdatedAt = DateTime.UtcNow;
+                await bookingRepo.UpdateAsync(booking);
+                await bookingRepo.SaveChangesAsync();
+
+                // 2. Dig Deep: Loop through the booking's passengers to find and release their seats
+                foreach (var passenger in booking.Passengers)
+                {
+                    if (passenger.FlightSeat != null)
+                    {
+                        var seat = passenger.FlightSeat;
+                        seat.Status = "Available";
+                        seat.BookingId = null;
+                        seat.PassengerId = null;
+                        seat.UpdatedAt = DateTime.UtcNow;
+                        db.FlightSeats.Update(seat);
+                    }
+                }
+
+                await db.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                // Fetch the fully populated booking for a clean response map
+                var archivedBooking = await bookingRepo.GetByIdAsync(booking.BookingId)
+                    ?? throw new InvalidOperationException("Failed to retrieve archived booking after commit.");
+
+                return mapper.Map<BookingResponse>(archivedBooking);
             }
             catch
             {
