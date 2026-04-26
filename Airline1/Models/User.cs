@@ -5,7 +5,8 @@ namespace Airline1.Models
     public class User
     {
         [Key]
-        public int Id { get; set; }
+        [MaxLength(450)]
+        public string Id { get; set; } = string.Empty;
 
         [Required, MaxLength(50)]
         public string FirstName { get; set; } = string.Empty;

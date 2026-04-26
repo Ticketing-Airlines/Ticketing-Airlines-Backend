@@ -7,10 +7,11 @@ namespace Airline1.Models
     public class Passenger
     {
         [Key]
-        public int Id { get; set; }
+        [MaxLength(450)]
+        public string Id { get; set; } = string.Empty;
 
         [ForeignKey(nameof(User))]
-        public int? UserId { get; set; }
+        public string? UserId { get; set; }
         public User? User { get; set; }
 
         [ForeignKey(nameof(Flight))]

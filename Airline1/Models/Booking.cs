@@ -20,7 +20,9 @@ namespace Airline1.Models
         public required int FlightBundleId { get; set; }
 
         // --- User/Guest Information ---
-        public int? UserId { get; set; } // Null for Guest booking
+        [MaxLength(450)]
+        public string? UserId { get; set; } // Null for Guest booking
+        public User? User { get; set; }
 
         [MaxLength(255)]
         public required string ContactEmail { get; set; }
