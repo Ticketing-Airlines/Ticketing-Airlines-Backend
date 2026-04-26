@@ -197,7 +197,7 @@ namespace Airline1.Services
             return booking == null ? null : mapper.Map<BookingResponse>(booking);
         }
 
-        public async Task<IEnumerable<BookingResponse>> GetByUserIdAsync(int userId)
+        public async Task<IEnumerable<BookingResponse>> GetByUserIdAsync(string userId)
         {
             var bookings = await bookingRepo.GetByUserIdAsync(userId);
             return mapper.Map<IEnumerable<BookingResponse>>(bookings);
