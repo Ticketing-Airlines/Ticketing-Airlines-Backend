@@ -12,7 +12,7 @@ namespace Airline1.Dtos.Responses
         public int FlightBundleId { get; set; }
         public string FlightBundleName { get; set; } = null!; // Display name for the bundle
 
-        public int? UserId { get; set; }
+        public string? UserId { get; set; }
         public string ContactEmail { get; set; } = null!;
         public string ContactPhone { get; set; } = null!;
 
