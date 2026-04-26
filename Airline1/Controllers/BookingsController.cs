@@ -98,7 +98,7 @@ namespace Airline1.Controllers
         /// Gets all bookings for a specific user ID.
         /// </summary>
         [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetBookingsByUserId(int userId)
+        public async Task<IActionResult> GetBookingsByUserId(string userId)
         {
             var bookings = await _bookingService.GetByUserIdAsync(userId);
             return Ok(bookings);
