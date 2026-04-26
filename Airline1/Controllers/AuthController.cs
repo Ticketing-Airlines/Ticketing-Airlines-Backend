@@ -15,6 +15,15 @@ namespace Airline1.Controllers
             _authService = authService;
         }
 
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
+        {
+            var response = await _authService.RegisterAsync(request);
+            if (response == null)
+                return BadRequest("Email already registered.");
+            return Ok(response);
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
