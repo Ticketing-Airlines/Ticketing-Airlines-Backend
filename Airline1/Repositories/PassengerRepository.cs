@@ -12,7 +12,7 @@ namespace Airline1.Repositories
             return await context.Passengers.Include(p => p.User).ToListAsync();
         }
 
-        public async Task<Passenger?> GetByIdAsync(int id)
+        public async Task<Passenger?> GetByIdAsync(string id)
         {
             return await context.Passengers.Include(p => p.User)
                                             .FirstOrDefaultAsync(p => p.Id == id);
@@ -37,7 +37,7 @@ namespace Airline1.Repositories
             return await context.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             var passenger = await context.Passengers.FindAsync(id);
             if (passenger == null) return false;
