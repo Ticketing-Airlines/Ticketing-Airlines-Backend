@@ -7,9 +7,9 @@ namespace Airline1.IService
     {
         Task<RegisterResponse> RegisterUserAsync(RegisterUserRequest request);
         Task<LoginResponse?> LoginUserAsync(LoginUserRequest request);
-        Task<UserResponse?> GetUserByIdAsync(int id);
+        Task<UserResponse?> GetUserByIdAsync(string id);
         Task<IEnumerable<UserResponse>> GetAllUsersAsync();
-        Task<UserResponse?> UpdateUserAsync(int id, UpdateUserRequest request);
-        Task<bool> DeleteUserAsync(int id);
+        Task<UserResponse?> UpdateUserAsync(string id, UpdateUserRequest request);
+        Task<bool> DeleteUserAsync(string id);
     }
 }

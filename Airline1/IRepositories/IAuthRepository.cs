@@ -6,6 +6,7 @@ namespace Airline1.IRepositories
     {
         Task<User?> GetByEmailAsync(string email);
         Task<User?> GetBySessionTokenAsync(string token);
+        Task AddAsync(User user);
         Task UpdateAsync(User user);
         Task SaveChangesAsync();
     }

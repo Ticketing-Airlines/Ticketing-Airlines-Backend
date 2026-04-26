@@ -6,9 +6,9 @@ namespace Airline1.IService
     public interface IPassengerService
     {
         Task<IEnumerable<PassengerResponse>> GetAllAsync();
-        Task<PassengerResponse?> GetByIdAsync(int id);
+        Task<PassengerResponse?> GetByIdAsync(string id);
         Task<PassengerResponse> CreateAsync(CreatePassengerRequest request);
-        Task<PassengerResponse?> UpdateAsync(int id, CreatePassengerRequest request);
-        Task<bool> DeleteAsync(int id);
+        Task<PassengerResponse?> UpdateAsync(string id, CreatePassengerRequest request);
+        Task<bool> DeleteAsync(string id);
     }
 }
