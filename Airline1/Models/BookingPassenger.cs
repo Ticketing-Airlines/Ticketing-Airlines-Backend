@@ -48,6 +48,6 @@ namespace Airline1.Models
         public FlightSeat? FlightSeat { get; set; }
 
         // Optional: Link back to a user profile if applicable (e.g., frequent flyer)
-        public int? UserId { get; set; }
+        public string? UserId { get; set; }
     }
 }

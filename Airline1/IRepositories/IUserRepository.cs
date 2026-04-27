@@ -4,7 +4,7 @@ namespace Airline1.IRepositories
 {
     public interface IUserRepository
     {
-        Task<User?> GetByIdAsync(int id);
+        Task<User?> GetByIdAsync(string id);
         Task<User?> GetByEmailAsync(string email);
         Task<User> AddAsync(User user);
         Task<User> UpdateAsync(User user);

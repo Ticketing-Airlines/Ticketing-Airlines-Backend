@@ -20,7 +20,7 @@ namespace Airline1.Dtos.Requests
         public string ContactPhone { get; set; } = null!;
 
         // --- User/Guest Info ---
-        public int? UserId { get; set; } // User ID if a registered user is making the booking
+        public string? UserId { get; set; } // User ID if a registered user is making the booking
 
         // List of passengers for this booking
         [Required]

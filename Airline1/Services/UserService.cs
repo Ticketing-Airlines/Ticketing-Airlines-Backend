@@ -12,6 +12,7 @@ namespace Airline1.Services
         {
             var user = new User
             {
+                Id = request.Email,
                 FirstName = request.FirstName,
                 MiddleName = request.MiddleName,
                 LastName = request.LastName,
@@ -45,7 +46,7 @@ namespace Airline1.Services
             };
         }
 
-        public async Task<UserResponse?> GetUserByIdAsync(int id)
+        public async Task<UserResponse?> GetUserByIdAsync(string id)
         {
             var user = await userRepository.GetByIdAsync(id);
             if (user == null) return null;
@@ -79,7 +80,7 @@ namespace Airline1.Services
             });
         }
 
-        public async Task<UserResponse?> UpdateUserAsync(int id, UpdateUserRequest request)
+        public async Task<UserResponse?> UpdateUserAsync(string id, UpdateUserRequest request)
         {
             var user = await userRepository.GetByIdAsync(id);
             if (user == null) return null;
@@ -107,7 +108,7 @@ namespace Airline1.Services
             };
         }
 
-        public async Task<bool> DeleteUserAsync(int id)
+        public async Task<bool> DeleteUserAsync(string id)
         {
             var user = await userRepository.GetByIdAsync(id);
             if (user == null) return false;

@@ -25,7 +25,7 @@ namespace Airline1.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserById(int id)
+        public async Task<IActionResult> GetUserById(string id)
         {
             var response = await userService.GetUserByIdAsync(id);
             if (response == null) return NotFound();
@@ -40,7 +40,7 @@ namespace Airline1.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request)
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserRequest request)
         {
             var response = await userService.UpdateUserAsync(id, request);
             if (response == null) return NotFound();
@@ -48,7 +48,7 @@ namespace Airline1.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(string id)
         {
             var success = await userService.DeleteUserAsync(id);
             if (!success) return NotFound();

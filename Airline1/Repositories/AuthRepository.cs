@@ -18,6 +18,12 @@ namespace Airline1.Repositories
             return await db.Users.FirstOrDefaultAsync(u => u.SessionToken == token);
         }
 
+        public async Task AddAsync(User user)
+        {
+            await db.Users.AddAsync(user);
+            await db.SaveChangesAsync();
+        }
+
         public async Task UpdateAsync(User user)
         {
             db.Users.Update(user);

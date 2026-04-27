@@ -2,7 +2,7 @@
 {
     public class AuthResponse
     {
-        public required int UserId { get; set; }
+        public required string UserId { get; set; }
         public required string Email { get; set; }
         public string? FirstName { get; set; }
         public string? MiddleName { get; set; }
@@ -12,7 +12,7 @@
         public DateTime? SessionExpiry { get; set; }
 
         // Optional convenience property (not stored in DB)
-        public string FullName =>
+        public string Name =>
             string.Join(" ", new[] { FirstName, MiddleName, LastName }
                 .Where(name => !string.IsNullOrWhiteSpace(name)));
     }

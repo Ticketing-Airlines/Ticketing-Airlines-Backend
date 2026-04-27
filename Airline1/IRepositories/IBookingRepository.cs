@@ -8,7 +8,7 @@ namespace Airline1.IRepositories
     {
         Task<Booking?> GetByIdAsync(Guid id);
         Task<Booking?> GetByPnrAsync(string pnr);
-        Task<IEnumerable<Booking>> GetByUserIdAsync(int userId);
+        Task<IEnumerable<Booking>> GetByUserIdAsync(string userId);
         Task<Booking> AddAsync(Booking booking);
         Task UpdateAsync(Booking booking);
         Task SaveChangesAsync();

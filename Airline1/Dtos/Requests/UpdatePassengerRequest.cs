@@ -3,7 +3,7 @@
     // Update DTO: all fields optional so partial updates are supported
     public class UpdatePassengerRequest
     {
-        public int? UserId { get; set; }         // optional: link to registered user
+        public string? UserId { get; set; }         // optional: link to registered user
 
         public string? FirstName { get; set; }
         public string? MiddleName { get; set; }

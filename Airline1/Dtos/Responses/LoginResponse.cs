@@ -2,7 +2,7 @@
 {
     public class LoginResponse
     {
-        public int UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         public string FullName { get; set; } = "";
         public required string Email { get; set; }
         public required string Role { get; set; }

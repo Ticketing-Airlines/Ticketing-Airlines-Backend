@@ -9,6 +9,41 @@ namespace Airline1.Services
 {
     public class AuthService(IAuthRepository authRepo) : IAuthService
     {
+        public async Task<AuthResponse?> RegisterAsync(RegisterUserRequest request)
+        {
+            var existingUser = await authRepo.GetByEmailAsync(request.Email);
+            if (existingUser != null) return null;
+
+            var user = new User
+            {
+                Id = request.Email,
+                FirstName = request.FirstName,
+                MiddleName = request.MiddleName,
+                LastName = request.LastName,
+                Email = request.Email,
+                PhoneNumber = request.PhoneNumber,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                DateOfBirth = request.DateOfBirth,
+                Gender = request.Gender,
+                Role = "Customer",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await authRepo.AddAsync(user);
+
+            return new AuthResponse
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                MiddleName = user.MiddleName,
+                LastName = user.LastName,
+                Role = user.Role,
+                SessionToken = null,
+                SessionExpiry = null
+            };
+        }
+
         public async Task<AuthResponse?> LoginAsync(LoginRequest request)
         {
             var user = await authRepo.GetByEmailAsync(request.Email);

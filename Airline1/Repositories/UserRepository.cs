@@ -7,7 +7,7 @@ namespace Airline1.Repositories
 {
     public class UserRepository(AppDbContext context) : IUserRepository
     {
-        public async Task<User?> GetByIdAsync(int id) =>
+        public async Task<User?> GetByIdAsync(string id) =>
             await context.Users.FindAsync(id);
 
         public async Task<User?> GetByEmailAsync(string email) =>

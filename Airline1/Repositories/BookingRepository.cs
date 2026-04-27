@@ -67,7 +67,7 @@ namespace Airline1.Repositories
                 .FirstOrDefaultAsync(b => b.Pnr == pnr);
         }
 
-        public async Task<IEnumerable<Booking>> GetByUserIdAsync(int userId)
+        public async Task<IEnumerable<Booking>> GetByUserIdAsync(string userId)
         {
             return await GetBookingQuery().Where(b => b.UserId == userId).ToListAsync();
         }

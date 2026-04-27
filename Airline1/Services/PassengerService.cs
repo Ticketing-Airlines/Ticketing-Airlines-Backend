@@ -14,7 +14,7 @@ namespace Airline1.Services
             return passengers.Select(MapToResponse);
         }
 
-        public async Task<PassengerResponse?> GetByIdAsync(int id)
+        public async Task<PassengerResponse?> GetByIdAsync(string id)
         {
             var passenger = await repo.GetByIdAsync(id);
             return passenger == null ? null : MapToResponse(passenger);
@@ -24,6 +24,7 @@ namespace Airline1.Services
         {
             var passenger = new Passenger
             {
+                Id = request.Email ?? Guid.NewGuid().ToString("N"),
                 UserId = request.UserId,
                 FirstName = request.FirstName,
                 MiddleName = request.MiddleName,
@@ -43,7 +44,7 @@ namespace Airline1.Services
             return MapToResponse(created);
         }
 
-        public async Task<PassengerResponse?> UpdateAsync(int id, CreatePassengerRequest request)
+        public async Task<PassengerResponse?> UpdateAsync(string id, CreatePassengerRequest request)
         {
             var existing = await repo.GetByIdAsync(id);
             if (existing == null) return null;
@@ -66,7 +67,7 @@ namespace Airline1.Services
             return MapToResponse(updated!);
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             return await repo.DeleteAsync(id);
         }
@@ -75,7 +76,7 @@ namespace Airline1.Services
         {
             Id = p.Id,
             UserId = p.UserId,
-            FlightId = p.FlightId,
+            FlightId = p.FlightId.ToString(),
             FullName = p.FullName,
             Gender = p.Gender,
             Email = p.Email,
