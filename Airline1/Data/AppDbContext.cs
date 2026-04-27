@@ -27,6 +27,8 @@ namespace Airline1.Data
         public DbSet<FlightPrice> FlightPrices { get; set; } = null!;
 
         public DbSet<BookingFlight> BookingFlights { get; set; } = null!;
+        public DbSet<TrackingDevice> TrackingDevices { get; set; } = null!;
+        public DbSet<DeviceLocation> DeviceLocations { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -267,6 +269,33 @@ namespace Airline1.Data
                 .WithMany()
                 .HasForeignKey(b => b.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // --- TRACKING DEVICE CONFIGURATION ---
+            modelBuilder.Entity<TrackingDevice>()
+                .HasKey(d => d.DeviceId);
+
+            modelBuilder.Entity<TrackingDevice>()
+                .Property(d => d.DeviceId)
+                .HasMaxLength(450);
+
+            modelBuilder.Entity<TrackingDevice>()
+                .Property(d => d.MqttTopic)
+                .HasMaxLength(255);
+
+            // --- DEVICE LOCATION HISTORY CONFIGURATION ---
+            modelBuilder.Entity<DeviceLocation>()
+                .HasOne(dl => dl.Device)
+                .WithMany()
+                .HasForeignKey(dl => dl.DeviceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DeviceLocation>()
+                .HasIndex(dl => dl.DeviceId)
+                .HasDatabaseName("IX_DeviceLocation_DeviceId");
+
+            modelBuilder.Entity<DeviceLocation>()
+                .HasIndex(dl => dl.Timestamp)
+                .HasDatabaseName("IX_DeviceLocation_Timestamp");
         }
     }
 }
