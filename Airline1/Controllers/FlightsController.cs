@@ -1,4 +1,5 @@
 ﻿using Airline1.Dtos.Requests;
+using Airline1.Dtos.Responses;
 using Airline1.IService;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,6 +29,31 @@ namespace Airline1.Controllers
             }
 
             return Ok(flight);
+        }
+
+        [HttpPost("status")]
+        public async Task<IActionResult> GetFlightStatus([FromBody] FlightStatusLookupRequest request)
+        {
+            try
+            {
+                var result = await service.GetFlightStatusLookupAsync(request.FlightNumber, request.Date);
+
+                if (!result.Success)
+                {
+                    return BadRequest(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new FlightStatusApiResponse
+                {
+                    Success = false,
+                    Error = "SYSTEM_ERROR",
+                    Message = "Unable to retrieve flight status. Please try again later."
+                });
+            }
         }
 
         // Legacy GET search - kept for backward compatibility
