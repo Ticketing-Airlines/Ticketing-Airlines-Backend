@@ -178,6 +178,11 @@ builder.Services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
 builder.Services.AddScoped<IPaymentFAQRepository, PaymentFAQRepository>();
 builder.Services.AddScoped<IPaymentMethodService, PaymentMethodService>();
 
+builder.Services.AddScoped<ISeatSaleConfigRepository, SeatSaleConfigRepository>();
+builder.Services.AddScoped<ISeatSaleConfigService, SeatSaleConfigService>();
+builder.Services.AddScoped<ISeatSaleRepository, SeatSaleRepository>();
+builder.Services.AddScoped<ISeatSaleService, SeatSaleService>();
+
 // CORS Registration
 builder.Services.AddCors(options =>
 {
@@ -217,9 +222,9 @@ app.UseRateLimiter();
 
 app.MapControllers();
 
-// Railway sets PORT environment variable
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
-app.Urls.Add($"http://0.0.0.0:{port}");
+// Railway port configuration (commented for local development)
+// var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+// app.Urls.Add($"http://0.0.0.0:{port}");
 
 app.Run();
 
