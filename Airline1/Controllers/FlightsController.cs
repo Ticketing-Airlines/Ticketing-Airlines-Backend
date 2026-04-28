@@ -8,7 +8,6 @@ namespace Airline1.Controllers
     [Route("api/[controller]")]
     public class FlightsController(IFlightService service) : ControllerBase
     {
-
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -17,7 +16,6 @@ namespace Airline1.Controllers
         }
 
         [HttpGet("status")]
-
         public async Task<IActionResult> GetStatus(
             [FromQuery] string flightNumber,
             [FromQuery] DateTime date)
@@ -31,19 +29,25 @@ namespace Airline1.Controllers
 
             return Ok(flight);
         }
-            
 
+        // Legacy GET search - kept for backward compatibility
         [HttpGet("search")]
         public async Task<IActionResult> Search(
             [FromQuery] string origin,
-         [FromQuery] string destination,
-         [FromQuery] DateTime date,
-         [FromQuery] int passengers = 1)
-            
-            {
+            [FromQuery] string destination,
+            [FromQuery] DateTime date,
+            [FromQuery] int passengers = 1)
+        {
             var flights = await service.SearchFlightsAsync(origin, destination, date, passengers);
-            
             return Ok(flights);
+        }
+
+        // New POST search for frontend alignment
+        [HttpPost("search")]
+        public async Task<IActionResult> Search([FromBody] SearchFlightRequest request)
+        {
+            var result = await service.SearchFlightsAsync(request);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
