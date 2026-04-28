@@ -34,6 +34,9 @@ namespace Airline1.Data
         public DbSet<BoardingPass> BoardingPasses { get; set; } = null!;
         public DbSet<PaymentMethod> PaymentMethods { get; set; } = null!;
         public DbSet<PaymentFAQ> PaymentFAQs { get; set; } = null!;
+        public DbSet<SeatSale> SeatSales { get; set; } = null!;
+        public DbSet<SeatSaleConfig> SeatSaleConfigs { get; set; } = null!;
+        public DbSet<TermsCondition> TermsConditions { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -373,6 +376,29 @@ namespace Airline1.Data
                 b.HasIndex(f => f.IsActive).HasDatabaseName("IX_PaymentFAQ_IsActive");
             });
             // --- END PAYMENT FAQ CONFIGURATION ---
+
+            // --- SEAT SALE CONFIGURATION ---
+            modelBuilder.Entity<SeatSale>(b =>
+            {
+                b.HasIndex(s => s.DestinationAirportCode);
+                b.HasIndex(s => s.Type);
+                b.HasIndex(s => s.Featured);
+                b.HasIndex(s => s.IsActive);
+                b.HasIndex(s => s.BookingDeadline);
+                b.Property(s => s.OriginalPrice).HasPrecision(18, 2);
+                b.Property(s => s.SalePrice).HasPrecision(18, 2);
+            });
+            // --- END SEAT SALE CONFIGURATION ---
+
+            // --- SEAT SALE CONFIG RELATIONSHIP ---
+            modelBuilder.Entity<SeatSaleConfig>(b =>
+            {
+                b.HasMany(c => c.TermsAndConditions)
+                    .WithOne(tc => tc.SeatSaleConfig)
+                    .HasForeignKey(tc => tc.SeatSaleConfigId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+            // --- END SEAT SALE CONFIG RELATIONSHIP ---
         }
     }
 }
