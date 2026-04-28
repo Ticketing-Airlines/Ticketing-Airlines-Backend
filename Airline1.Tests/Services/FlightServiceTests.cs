@@ -2,6 +2,7 @@ using Xunit;
 using Moq;
 using Airline1.Services;
 using Airline1.IRepositories;
+using Airline1.IService;
 using AutoMapper;
 using Airline1.Models;
 using Airline1.Dtos.Requests;
@@ -13,13 +14,15 @@ namespace Airline1.Tests.Services
     {
         private readonly Mock<IFlightRepository> _mockRepo;
         private readonly Mock<IMapper> _mockMapper;
+        private readonly Mock<IWeatherService> _mockWeather;
         private readonly FlightService _service;
 
         public FlightServiceTests()
         {
             _mockRepo = new Mock<IFlightRepository>();
             _mockMapper = new Mock<IMapper>();
-            _service = new FlightService(_mockRepo.Object, _mockMapper.Object);
+            _mockWeather = new Mock<IWeatherService>();
+            _service = new FlightService(_mockRepo.Object, _mockMapper.Object, _mockWeather.Object);
         }
 
         [Fact]
