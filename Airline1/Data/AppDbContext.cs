@@ -30,6 +30,8 @@ namespace Airline1.Data
         public DbSet<BookingFlight> BookingFlights { get; set; } = null!;
         public DbSet<TrackingDevice> TrackingDevices { get; set; } = null!;
         public DbSet<DeviceLocation> DeviceLocations { get; set; } = null!;
+        public DbSet<CheckIn> CheckIns { get; set; } = null!;
+        public DbSet<BoardingPass> BoardingPasses { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -303,6 +305,33 @@ namespace Airline1.Data
             modelBuilder.Entity<DeviceLocation>()
                 .HasIndex(dl => dl.Timestamp)
                 .HasDatabaseName("IX_DeviceLocation_Timestamp");
+
+            // --- CHECK-IN CONFIGURATION ---
+            modelBuilder.Entity<CheckIn>(b =>
+            {
+                b.HasIndex(c => c.BookingId);
+                b.HasIndex(c => c.PassengerId);
+                b.HasIndex(c => c.CreatedAt).HasDatabaseName("IX_CheckIn_CreatedAt");
+
+                b.HasOne(c => c.Booking)
+                    .WithMany()
+                    .HasForeignKey(c => c.BookingId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b.HasOne(c => c.BoardingPass)
+                    .WithOne(bp => bp.CheckIn)
+                    .HasForeignKey<BoardingPass>(bp => bp.CheckInId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+            // --- END CHECK-IN CONFIGURATION ---
+
+            // --- BOARDING PASS CONFIGURATION ---
+            modelBuilder.Entity<BoardingPass>(b =>
+            {
+                b.HasIndex(bp => bp.BookingReference);
+                b.HasIndex(bp => bp.CheckInId).IsUnique();
+            });
+            // --- END BOARDING PASS CONFIGURATION ---
         }
     }
 }
