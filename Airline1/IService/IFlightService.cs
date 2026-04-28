@@ -14,6 +14,9 @@ namespace Airline1.IService
 
         Task<IEnumerable<FlightResponse>> SearchFlightsAsync(string origin, string destination, DateTime departureDate, int passengerCount);
 
+        // New enhanced flight search for frontend alignment
+        Task<FlightSearchResponse> SearchFlightsAsync(SearchFlightRequest request);
+
         Task<bool> DeleteAsync(int id);
     }
 }

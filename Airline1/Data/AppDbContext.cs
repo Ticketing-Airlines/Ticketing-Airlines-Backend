@@ -18,6 +18,7 @@ namespace Airline1.Data
         public DbSet<Flight> Flights { get; set; } = null!;
         public DbSet<FlightBundle> FlightBundles { get; set; } = null!;
         public DbSet<Passenger> Passengers { get; set; } = null!;
+        public DbSet<Airline> Airlines { get; set; } = null!;
         public DbSet<AircraftConfiguration> AircraftConfigurations { get; set; } = null!;
         public DbSet<CabinConfigurationDetail> CabinConfigurationDetails { get; set; } = null!;
         public DbSet<FlightAddOn> FlightAddOns { get; set; } = null!;
@@ -228,6 +229,12 @@ namespace Airline1.Data
                 .WithMany()
                 .HasForeignKey(f => f.AircraftId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Flight>()
+                .HasOne(f => f.Airline)
+                .WithMany()
+                .HasForeignKey(f => f.AirlineId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Flight>()
                 .HasOne(f => f.Route)

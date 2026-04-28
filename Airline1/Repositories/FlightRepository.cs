@@ -1,4 +1,5 @@
 ﻿using Airline1.Data;
+using Airline1.Dtos.Requests;
 using Airline1.IRepositories;
 using Airline1.Models;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,7 @@ namespace Airline1.Repositories
                 .Include(f => f.Aircraft)
                 .Include(f => f.Route!)
                     .ThenInclude(r => r.OriginAirport)
-                .Include(f => f.Route!) 
+                .Include(f => f.Route!)
                     .ThenInclude(r => r.DestinationAirport)
                 .ToListAsync();
         }
@@ -37,10 +38,31 @@ namespace Airline1.Repositories
                     .ThenInclude(r => r.OriginAirport)
                 .Include(f => f.Route!)
                     .ThenInclude(r => r.DestinationAirport)
-                .Where(f => 
+                .Where(f =>
                     (f.Route!.OriginAirport.IataCode == origin || f.Route.OriginAirport.City == origin) &&
                     (f.Route!.DestinationAirport.IataCode == destination || f.Route.DestinationAirport.City == destination) &&
                     f.DepartureTime.Date == departureDate.Date)
+                .ToListAsync();
+        }
+
+        // Enhanced search with full includes for flight search API
+        public async Task<IEnumerable<Flight>> SearchAsync(SearchFlightRequest request)
+        {
+            return await db.Flights
+                .AsNoTracking()
+                .Include(f => f.Aircraft)
+                    .ThenInclude(a => a!.Configuration)
+                .Include(f => f.Route!)
+                    .ThenInclude(r => r.OriginAirport)
+                .Include(f => f.Route!)
+                    .ThenInclude(r => r.DestinationAirport)
+                .Include(f => f.FlightPrices)
+                .Include(f => f.Seats)
+                .Include(f => f.Airline)
+                .Where(f =>
+                    (f.Route!.OriginAirport.IataCode == request.From || f.Route.OriginAirport.City == request.From) &&
+                    (f.Route!.DestinationAirport.IataCode == request.To || f.Route.DestinationAirport.City == request.To) &&
+                    f.DepartureTime.Date == request.DepartureDate.Date)
                 .ToListAsync();
         }
 
@@ -48,7 +70,7 @@ namespace Airline1.Repositories
         {
             return await db.Flights
                 .Include(f => f.Statuses)
-                .FirstOrDefaultAsync(f => f.FlightNumber == flightNumber && 
+                .FirstOrDefaultAsync(f => f.FlightNumber == flightNumber &&
                f.DepartureTime.Date == date.Date);
 
         }

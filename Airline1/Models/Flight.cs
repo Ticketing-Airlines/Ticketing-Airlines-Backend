@@ -26,6 +26,11 @@ namespace Airline1.Models
         // ✅ Each Flight can have multiple statuses
         public ICollection<FlightStatus>? Statuses { get; set; }
 
+        public int? AirlineId { get; set; }
+
+        [ForeignKey(nameof(AirlineId))]
+        public Airline? Airline { get; set; }
+
         public int? RescheduledFromFlightId { get; set; }
         [ForeignKey(nameof(RescheduledFromFlightId))]
         public Flight? RescheduledFromFlight { get; set; }

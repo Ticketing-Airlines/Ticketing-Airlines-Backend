@@ -24,6 +24,9 @@ namespace Airline1.Models
         [MaxLength(100)]
         public required string Country { get; set; }
 
+        [MaxLength(2)]
+        public string? CountryIso2 { get; set; }
+
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
 
