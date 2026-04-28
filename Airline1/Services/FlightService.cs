@@ -7,7 +7,7 @@ using AutoMapper;
 
 namespace Airline1.Services
 {
-    public class FlightService(IFlightRepository repository, IMapper mapper) : IFlightService
+    public class FlightService(IFlightRepository repository, IMapper mapper, IWeatherService weatherService) : IFlightService
     {
         public async Task<IEnumerable<FlightResponse>> SearchFlightsAsync(string origin, string destination, DateTime departureDate, int passengerCount)
         {
@@ -166,6 +166,179 @@ namespace Airline1.Services
                 return null;
 
             return mapper.Map<FlightResponse>(flight);
+        }
+
+        public async Task<FlightStatusApiResponse> GetFlightStatusLookupAsync(string flightNumber, string date)
+        {
+            // Validate flight number format: 2 letters + space + 3-4 digits
+            var flightNumberRegex = new System.Text.RegularExpressions.Regex(@"^[A-Z]{2}\s\d{3,4}$");
+            if (!flightNumberRegex.IsMatch(flightNumber.ToUpperInvariant()))
+            {
+                return new FlightStatusApiResponse
+                {
+                    Success = false,
+                    Error = "INVALID_FLIGHT_NUMBER",
+                    Message = "Invalid flight number format. Example: SS 101"
+                };
+            }
+
+            // Validate date format
+            if (!DateTime.TryParseExact(date, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var parsedDate))
+            {
+                return new FlightStatusApiResponse
+                {
+                    Success = false,
+                    Error = "INVALID_DATE",
+                    Message = "Invalid date format. Please use YYYY-MM-DD format."
+                };
+            }
+
+            var flight = await repository.GetByFlightNumberAndDateAsync(flightNumber.ToUpperInvariant(), parsedDate);
+
+            if (flight == null)
+            {
+                return new FlightStatusApiResponse
+                {
+                    Success = false,
+                    Error = "FLIGHT_NOT_FOUND",
+                    Message = "Flight not found. Please check the flight number and date."
+                };
+            }
+
+            var status = DetermineFlightStatus(flight);
+            var duration = flight.ArrivalTime - flight.DepartureTime;
+            var durationFormatted = $"{duration.Hours}h {duration.Minutes}m";
+
+            var departure = new AirportInfoResponse
+            {
+                Code = flight.Route?.OriginAirport?.IataCode ?? "",
+                Airport = flight.Route?.OriginAirport?.Name ?? "",
+                City = flight.Route?.OriginAirport?.City ?? "",
+                Terminal = flight.DepartureTerminal,
+                Gate = flight.DepartureGate,
+                ScheduledTime = flight.DepartureTime.ToString("HH:mm"),
+                ActualTime = flight.ActualDepartureTime?.ToString("HH:mm")
+            };
+
+            var arrival = new AirportInfoResponse
+            {
+                Code = flight.Route?.DestinationAirport?.IataCode ?? "",
+                Airport = flight.Route?.DestinationAirport?.Name ?? "",
+                City = flight.Route?.DestinationAirport?.City ?? "",
+                Terminal = flight.ArrivalTerminal,
+                Gate = flight.ArrivalGate,
+                ScheduledTime = flight.ArrivalTime.ToString("HH:mm"),
+                EstimatedTime = flight.EstimatedArrivalTime?.ToString("HH:mm")
+            };
+
+            // Weather integration
+            var originAirport = flight.Route?.OriginAirport;
+            var destAirport = flight.Route?.DestinationAirport;
+
+            var departureWeather = new WeatherLocationResponse { Temp = "--°C", Condition = "N/A" };
+            var arrivalWeather = new WeatherLocationResponse { Temp = "--°C", Condition = "N/A" };
+
+            if (originAirport?.Latitude.HasValue == true && originAirport?.Longitude.HasValue == true)
+            {
+                try
+                {
+                    var weather = await weatherService.GetCurrentWeatherAsync(originAirport.Latitude.Value, originAirport.Longitude.Value);
+                    departureWeather = new WeatherLocationResponse { Temp = weather.Temp, Condition = weather.Condition };
+                }
+                catch
+                {
+                    // fallback already handled in service
+                }
+            }
+
+            if (destAirport?.Latitude.HasValue == true && destAirport?.Longitude.HasValue == true)
+            {
+                try
+                {
+                    var weather = await weatherService.GetCurrentWeatherAsync(destAirport.Latitude.Value, destAirport.Longitude.Value);
+                    arrivalWeather = new WeatherLocationResponse { Temp = weather.Temp, Condition = weather.Condition };
+                }
+                catch
+                {
+                    // fallback already handled in service
+                }
+            }
+
+            var response = new FlightStatusLookupResponse
+            {
+                FlightNumber = flight.FlightNumber,
+                Airline = flight.Airline?.Name ?? "",
+                Aircraft = flight.Aircraft == null ? "" : $"{flight.Aircraft.Manufacturer} {flight.Aircraft.Model}",
+                Date = flight.DepartureTime.ToString("MMMM dd, yyyy"),
+                Status = status,
+                Duration = durationFormatted,
+                Departure = departure,
+                Arrival = arrival,
+                Weather = new WeatherInfoResponse
+                {
+                    Departure = departureWeather,
+                    Arrival = arrivalWeather
+                }
+            };
+
+            return new FlightStatusApiResponse
+            {
+                Success = true,
+                Data = response
+            };
+        }
+
+        private static string DetermineFlightStatus(Flight flight)
+        {
+            var now = DateTime.Now;
+            var scheduledDeparture = flight.DepartureTime;
+            var scheduledArrival = flight.ArrivalTime;
+
+            // Check cancelled first
+            var latestStatus = flight.Statuses?.OrderByDescending(s => s.EffectiveAt).FirstOrDefault();
+            if (latestStatus?.Status == Common.FlightStatusType.Cancelled)
+            {
+                return "Cancelled";
+            }
+
+            // If actual arrival is recorded and passed
+            if (flight.ActualArrivalTime.HasValue && flight.ActualArrivalTime.Value <= now)
+            {
+                return "Arrived";
+            }
+
+            // If actual departure is recorded and passed, and estimated arrival not yet reached
+            if (flight.ActualDepartureTime.HasValue && flight.ActualDepartureTime.Value <= now)
+            {
+                var estimatedArrival = flight.EstimatedArrivalTime ?? flight.ArrivalTime;
+                if (now < estimatedArrival)
+                {
+                    return "Departed";
+                }
+                return "Arrived";
+            }
+
+            // Check delay
+            if (flight.DelayMinutes.HasValue && flight.DelayMinutes.Value > 15)
+            {
+                return "Delayed";
+            }
+
+            // Check if within 15 minutes of scheduled departure
+            var minutesUntilDeparture = (scheduledDeparture - now).TotalMinutes;
+            if (minutesUntilDeparture <= 15 && minutesUntilDeparture >= -15)
+            {
+                return "On Time";
+            }
+
+            // If more than 2 hours away
+            if (minutesUntilDeparture > 120)
+            {
+                return "Scheduled";
+            }
+
+            // Within 2 hours but not within 15 minutes, and no significant delay
+            return "On Time";
         }
 
         public async Task<IEnumerable<FlightResponse>> GetAllAsync()

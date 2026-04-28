@@ -38,5 +38,19 @@ namespace Airline1.Models
         // 🟢 FIX: Renamed property to 'Seats' to match the AppDbContext configuration:
         // b.HasOne(fs => fs.Flight).WithMany(f => f.Seats)
         public ICollection<FlightSeat>? Seats { get; set; }
+
+        // Flight status lookup fields
+        [MaxLength(10)]
+        public string? DepartureTerminal { get; set; }
+        [MaxLength(10)]
+        public string? DepartureGate { get; set; }
+        [MaxLength(10)]
+        public string? ArrivalTerminal { get; set; }
+        [MaxLength(10)]
+        public string? ArrivalGate { get; set; }
+        public DateTime? ActualDepartureTime { get; set; }
+        public DateTime? EstimatedArrivalTime { get; set; }
+        public DateTime? ActualArrivalTime { get; set; }
+        public int? DelayMinutes { get; set; }
     }
 }

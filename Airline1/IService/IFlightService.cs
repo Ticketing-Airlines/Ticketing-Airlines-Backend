@@ -12,6 +12,8 @@ namespace Airline1.IService
 
         Task<FlightResponse?> GetFlightStatusAsync(string flightNumber, DateTime date);
 
+        Task<FlightStatusApiResponse> GetFlightStatusLookupAsync(string flightNumber, string date);
+
         Task<IEnumerable<FlightResponse>> SearchFlightsAsync(string origin, string destination, DateTime departureDate, int passengerCount);
 
         // New enhanced flight search for frontend alignment

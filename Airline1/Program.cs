@@ -145,6 +145,8 @@ builder.Services.AddScoped<ISeatService, SeatService>();
 builder.Services.AddScoped<IFlightStatusReasonRepository, FlightStatusReasonRepository>();
 builder.Services.AddScoped<IFlightStatusReasonService, FlightStatusReasonService>();
 
+builder.Services.AddScoped<IWeatherService, WeatherService>();
+
 builder.Services.AddScoped<IFlightSeatRepository, FlightSeatRepository>();
 builder.Services.AddScoped<IFlightSeatService, FlightSeatService>();
 

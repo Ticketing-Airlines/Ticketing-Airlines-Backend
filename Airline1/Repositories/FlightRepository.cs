@@ -69,6 +69,13 @@ namespace Airline1.Repositories
         public async Task<Flight?> GetByFlightNumberAndDateAsync(string flightNumber, DateTime date)
         {
             return await db.Flights
+                .AsNoTracking()
+                .Include(f => f.Aircraft)
+                .Include(f => f.Airline)
+                .Include(f => f.Route)
+                    .ThenInclude(r => r!.OriginAirport)
+                .Include(f => f.Route)
+                    .ThenInclude(r => r!.DestinationAirport)
                 .Include(f => f.Statuses)
                 .FirstOrDefaultAsync(f => f.FlightNumber == flightNumber &&
                f.DepartureTime.Date == date.Date);
