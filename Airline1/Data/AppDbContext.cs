@@ -32,6 +32,8 @@ namespace Airline1.Data
         public DbSet<DeviceLocation> DeviceLocations { get; set; } = null!;
         public DbSet<CheckIn> CheckIns { get; set; } = null!;
         public DbSet<BoardingPass> BoardingPasses { get; set; } = null!;
+        public DbSet<PaymentMethod> PaymentMethods { get; set; } = null!;
+        public DbSet<PaymentFAQ> PaymentFAQs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -332,6 +334,45 @@ namespace Airline1.Data
                 b.HasIndex(bp => bp.CheckInId).IsUnique();
             });
             // --- END BOARDING PASS CONFIGURATION ---
+
+            // --- PAYMENT METHOD CONFIGURATION ---
+            modelBuilder.Entity<PaymentMethod>(b =>
+            {
+                b.HasKey(pm => pm.Id);
+                b.Property(pm => pm.Id).HasMaxLength(50);
+                b.Property(pm => pm.Category).HasMaxLength(50);
+                b.Property(pm => pm.Name).HasMaxLength(100);
+                b.Property(pm => pm.Description).HasMaxLength(255);
+                b.Property(pm => pm.ProcessingTime).HasMaxLength(50);
+                b.Property(pm => pm.FeeType).HasMaxLength(20);
+                b.Property(pm => pm.FeeCurrency).HasMaxLength(3);
+                b.Property(pm => pm.FeeDisplayText).HasMaxLength(50);
+                b.Property(pm => pm.Color).HasMaxLength(20);
+                b.Property(pm => pm.Icon).HasMaxLength(50);
+                b.Property(pm => pm.MaintenanceSchedule).HasMaxLength(255);
+                b.Property(pm => pm.FeeAmount).HasPrecision(10, 2);
+                b.Property(pm => pm.FeeFixedAmount).HasPrecision(10, 2);
+
+                b.HasIndex(pm => pm.Category).HasDatabaseName("IX_PaymentMethod_Category");
+                b.HasIndex(pm => pm.Featured).HasDatabaseName("IX_PaymentMethod_Featured");
+                b.HasIndex(pm => pm.IsActive).HasDatabaseName("IX_PaymentMethod_IsActive");
+                b.HasIndex(pm => pm.DisplayOrder).HasDatabaseName("IX_PaymentMethod_DisplayOrder");
+            });
+            // --- END PAYMENT METHOD CONFIGURATION ---
+
+            // --- PAYMENT FAQ CONFIGURATION ---
+            modelBuilder.Entity<PaymentFAQ>(b =>
+            {
+                b.HasKey(f => f.Id);
+                b.Property(f => f.Category).HasMaxLength(50);
+                b.Property(f => f.Question).HasMaxLength(255);
+                b.Property(f => f.Icon).HasMaxLength(50);
+                b.Property(f => f.Color).HasMaxLength(20);
+
+                b.HasIndex(f => f.DisplayOrder).HasDatabaseName("IX_PaymentFAQ_DisplayOrder");
+                b.HasIndex(f => f.IsActive).HasDatabaseName("IX_PaymentFAQ_IsActive");
+            });
+            // --- END PAYMENT FAQ CONFIGURATION ---
         }
     }
 }
