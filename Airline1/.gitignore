@@ -426,3 +426,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+Airline1/appsettings.json
+Airline1/appsettings.Development.json
