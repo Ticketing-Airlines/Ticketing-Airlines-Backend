@@ -60,6 +60,20 @@ namespace Airline1.Mappings
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => src.Route != null ? src.Route.OriginAirport.Name : null))
                 .ForMember(dest => dest.Destination, opt => opt.MapFrom(src => src.Route != null ? src.Route.DestinationAirport.Name : null));
 
+            // Airline mappings
+            CreateMap<Airline, AirlineSearchResponse>()
+                .ForMember(dest => dest.AirlineId, opt => opt.MapFrom(src => src.Id));
+
+            // Airport search mapping
+            CreateMap<Airport, AirportSearchResponse>()
+                .ForMember(dest => dest.AirportId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.CountryIso2, opt => opt.MapFrom(src => src.CountryIso2 ?? src.Country));
+
+            // Aircraft search mapping
+            CreateMap<Aircraft, AircraftSearchResponse>()
+                .ForMember(dest => dest.AircraftId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Capacity, opt => opt.MapFrom(src => src.Configuration != null ? src.Configuration.TotalSeats : 0));
+
             // FlightStatus (existing)
             CreateMap<FlightStatus, FlightStatusResponse>()
                 .ForMember(dest => dest.FlightNumber, opt => opt.MapFrom(src => src.Flight != null ? src.Flight.FlightNumber : string.Empty))
