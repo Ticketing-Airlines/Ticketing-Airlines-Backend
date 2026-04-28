@@ -174,6 +174,10 @@ builder.Services.AddHostedService<DeviceTrackingBackgroundService>();
 
 builder.Services.AddScoped<IPaymentService, MockPaymentService>();
 
+builder.Services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
+builder.Services.AddScoped<IPaymentFAQRepository, PaymentFAQRepository>();
+builder.Services.AddScoped<IPaymentMethodService, PaymentMethodService>();
+
 // CORS Registration
 builder.Services.AddCors(options =>
 {
