@@ -37,6 +37,21 @@ namespace Airline1.Controllers
         }
 
         // -----------------------------------------------------------
+        // 1b. GET: All Active Prices for a Flight (Used by Booking Engine)
+        // -----------------------------------------------------------
+        /// <summary>
+        /// Retrieves all currently active add-on prices for a specific flight.
+        /// </summary>
+        /// <param name="flightId">The ID of the flight.</param>
+        [HttpGet("flight/{flightId}")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<AddOnPriceResponse>))]
+        public async Task<IActionResult> GetActivePricesForFlight(int flightId)
+        {
+            var prices = await addOnPriceService.GetActivePricesForFlightAsync(flightId);
+            return Ok(prices);
+        }
+
+        // -----------------------------------------------------------
         // ⭐ 2. GET: Price History (New Admin/Audit Endpoint) ⭐
         // -----------------------------------------------------------
         /// <summary>

@@ -16,6 +16,11 @@ namespace Airline1.IRepositories
         /// Retrieves all AddOnPrice historical and future records for a specific FlightAddOn.
         /// </summary>
         Task<IEnumerable<AddOnPrice>> GetAllByFlightAddOnAsync(int flightAddOnId);
+        
+        /// <summary>
+        /// Retrieves all AddOnPrice records for a specific flight.
+        /// </summary>
+        Task<IEnumerable<AddOnPrice>> GetAllByFlightIdAsync(int flightId);
 
         /// <summary>
         /// Retrieves a list of AddOnPrice records by their specific IDs.

@@ -29,6 +29,20 @@ namespace Airline1.Services
             return priceEntity?.PriceAmount;
         }
 
+        public async Task<IEnumerable<AddOnPriceResponse>> GetActivePricesForFlightAsync(int flightId)
+        {
+            var now = DateTime.UtcNow;
+            var allPrices = await priceRepo.GetAllByFlightIdAsync(flightId);
+            
+            // Filter to only active prices (within valid date range)
+            var activePrices = allPrices.Where(p =>
+                p.ValidFrom <= now &&
+                (p.ValidTo == null || p.ValidTo > now)
+            ).ToList();
+            
+            return mapper.Map<IEnumerable<AddOnPriceResponse>>(activePrices);
+        }
+
         public async Task<AddOnPriceResponse> CreateAsync(CreateAddOnPriceRequest request)
         { /* ... implementation ... */
             // --- 1. Validation Checks ---

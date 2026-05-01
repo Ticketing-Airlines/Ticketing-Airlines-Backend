@@ -89,6 +89,17 @@ namespace Airline1.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<AddOnPrice>> GetAllByFlightIdAsync(int flightId)
+        {
+            return await db.AddOnPrices
+                .AsNoTracking()
+                .Include(p => p.AddOn) // Include the FlightAddOn details
+                .Where(p => p.FlightId == flightId)
+                .OrderBy(p => p.AddOnId)
+                .ThenByDescending(p => p.ValidFrom)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<AddOnPrice>> GetPricesByIdsAsync(IEnumerable<int> ids)
         {
             if (ids == null || !ids.Any())

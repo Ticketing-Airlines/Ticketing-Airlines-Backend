@@ -119,7 +119,8 @@ namespace Airline1.Mappings
             // AddOnPrice Mappings (existing)
             CreateMap<CreateAddOnPriceRequest, AddOnPrice>();
             CreateMap<UpdateAddOnPriceRequest, AddOnPrice>();
-            CreateMap<AddOnPrice, AddOnPriceResponse>();
+            CreateMap<AddOnPrice, AddOnPriceResponse>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AddOnPriceId));
 
             // Users (existing)
             CreateMap<CreateUserRequest, User>();

@@ -22,6 +22,11 @@ namespace Airline1.IService
         // ----------------------------------------------------------------------
         Task<AddOnPriceResponse?> GetByIdAsync(int id);
         Task<decimal?> GetCurrentPriceAsync(int flightId, int addOnId);
+        
+        /// <summary>
+        /// Retrieves all currently active add-on prices for a specific flight.
+        /// </summary>
+        Task<IEnumerable<AddOnPriceResponse>> GetActivePricesForFlightAsync(int flightId);
 
         /// <summary>
         /// Calculates the total cost for a list of active Add-On Price IDs.
