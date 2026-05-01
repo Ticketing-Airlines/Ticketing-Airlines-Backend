@@ -170,15 +170,15 @@ namespace Airline1.Services
 
         public async Task<FlightStatusApiResponse> GetFlightStatusLookupAsync(string flightNumber, string date)
         {
-            // Validate flight number format: 2 letters + space + 3-4 digits
-            var flightNumberRegex = new System.Text.RegularExpressions.Regex(@"^[A-Z]{2}\s\d{3,4}$");
+            // Validate flight number format: 2 letters + optional space + 3-4 digits
+            var flightNumberRegex = new System.Text.RegularExpressions.Regex(@"^[A-Z]{2}\s?\d{3,4}$");
             if (!flightNumberRegex.IsMatch(flightNumber.ToUpperInvariant()))
             {
                 return new FlightStatusApiResponse
                 {
                     Success = false,
                     Error = "INVALID_FLIGHT_NUMBER",
-                    Message = "Invalid flight number format. Example: SS 101"
+                    Message = "Invalid flight number format. Example: SS101 or SS 101"
                 };
             }
 
