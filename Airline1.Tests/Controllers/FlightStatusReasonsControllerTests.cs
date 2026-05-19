@@ -3,6 +3,7 @@ using Moq;
 using Airline1.Controllers;
 using Airline1.IService;
 using Airline1.Dtos.Requests;
+using Airline1.Dtos.Responses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Airline1.Tests.Controllers
@@ -21,12 +22,12 @@ namespace Airline1.Tests.Controllers
         [Fact]
         public async Task Create_ReturnsCreated()
         {
-            var req = new FlightStatusReasonCreateRequest { 
+            var req = new FlightStatusReasonCreateRequest {
                 Code = "WX",
                 Title = "Weather Delay",
                  };
-            var created = new { Id = 1 };
-            _mockService.Setup(s => s.CreateAsync(req));
+            var created = new FlightStatusReasonResponse { Id = 1, Code = "WX", Title = "Weather Delay" };
+            _mockService.Setup(s => s.CreateAsync(req)).ReturnsAsync(created);
             var result = await _controller.Create(req);
             Assert.IsType<CreatedAtActionResult>(result);
         }

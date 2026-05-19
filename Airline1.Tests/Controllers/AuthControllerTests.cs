@@ -3,6 +3,7 @@ using Moq;
 using Airline1.Controllers;
 using Airline1.IService;
 using Airline1.Dtos.Requests;
+using Airline1.Dtos.Responses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Airline1.Tests.Controllers
@@ -22,7 +23,7 @@ namespace Airline1.Tests.Controllers
         public async Task Login_ReturnsUnauthorized_WhenInvalid()
         {
             var request = new LoginRequest { Email = "x@x.com", Password = "bad" };
-            _mockService.Setup(s => s.LoginAsync(request));
+            _mockService.Setup(s => s.LoginAsync(request)).ReturnsAsync((AuthResponse?)null);
             var result = await _controller.Login(request);
             Assert.IsType<UnauthorizedObjectResult>(result);
         }
@@ -31,8 +32,8 @@ namespace Airline1.Tests.Controllers
         public async Task Login_ReturnsOk_WhenValid()
         {
             var request = new LoginRequest { Email = "u@u.com", Password = "pwd" };
-            var resp = new { Token = "t" };
-            _mockService.Setup(s => s.LoginAsync(request));
+            var resp = new AuthResponse { UserId = "1", Email = "u@u.com", SessionToken = "t" };
+            _mockService.Setup(s => s.LoginAsync(request)).ReturnsAsync(resp);
             var result = await _controller.Login(request);
             var ok = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(resp, ok.Value);

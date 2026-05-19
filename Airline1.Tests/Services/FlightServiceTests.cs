@@ -5,7 +5,7 @@ using Airline1.IRepositories;
 using Airline1.IService;
 using AutoMapper;
 using Airline1.Models;
-using Airline1.Dtos.Requests;
+using Airline1.Dtos.Responses;
 using System.Collections.Generic;
 
 namespace Airline1.Tests.Services
@@ -28,17 +28,19 @@ namespace Airline1.Tests.Services
         [Fact]
         public async Task GetAllAsync_UsesRepositoryAndMapper()
         {
-            var list = new List<Flight> { new Flight { 
+            var list = new List<Flight> { new Flight {
                 Id = 1,
                 FlightNumber = "F1",
                 AircraftId  = 1,
                 RouteId = 2,
                 DepartureTime = DateTime.Now,
                 ArrivalTime = DateTime.Now} };
+            var responseList = new List<FlightResponse> { new FlightResponse { Id = 1, FlightNumber = "F1" } };
             _mockRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(list);
-            _mockMapper.Setup(m => m.Map<IEnumerable<object>>(It.IsAny<object>())).Returns(new List<object> { new { Id = 1 } });
+            _mockMapper.Setup(m => m.Map<IEnumerable<FlightResponse>>(It.IsAny<IEnumerable<Flight>>())).Returns(responseList);
             var res = await _service.GetAllAsync();
             Assert.NotNull(res);
+            Assert.Single(res);
         }
     }
 }

@@ -18,17 +18,18 @@ namespace Airline1.Tests.Services
         public SeatServiceTests()
         {
             _mockRepo = new Mock<ISeatRepository>();
+            _mapper = new Mock<IMapper>();
             _service = new SeatService(_mockRepo.Object, _mapper.Object);
         }
 
         [Fact]
         public async Task GetByAircraftAsync_ReturnsList()
         {
-            var list = new List<Seat> { new Seat { 
+            var seatId = Guid.NewGuid();
+            var list = new List<Seat> { new Seat {
                 AircraftId =  1,
                 SeatNumber =  "A1",
-                
-                Id = 1 } };
+                Id = seatId } };
             _mockRepo.Setup(r => r.GetByAircraftAsync(1)).ReturnsAsync(list);
             var res = await _service.GetByAircraftAsync(1);
             Assert.Single(res);

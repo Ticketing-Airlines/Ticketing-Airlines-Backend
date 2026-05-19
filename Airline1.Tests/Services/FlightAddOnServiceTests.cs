@@ -17,17 +17,20 @@ namespace Airline1.Tests.Services
         public FlightAddOnServiceTests()
         {
             _mockRepo = new Mock<IFlightAddOnRepository>();
+            _mapper = new Mock<IMapper>();
             _service = new FlightAddOnService(_mockRepo.Object, _mapper.Object);
         }
 
         [Fact]
         public async Task GetAllAsync_ReturnsList()
         {
-            var list = new List<Airline1.Models.FlightAddOn> { new Airline1.Models.FlightAddOn { 
-                Id = 1, 
+            var list = new List<Airline1.Models.FlightAddOn> { new Airline1.Models.FlightAddOn {
+                Id = 1,
                 Name = "mockname",
                 Code = "AIAA"} };
             _mockRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(list);
+            _mapper.Setup(m => m.Map<IEnumerable<Airline1.Dtos.Responses.FlightAddOnResponse>>(It.IsAny<IEnumerable<Airline1.Models.FlightAddOn>>()))
+                .Returns(new List<Airline1.Dtos.Responses.FlightAddOnResponse> { new Airline1.Dtos.Responses.FlightAddOnResponse { Id = 1, Name = "mockname", Code = "AIAA" } });
             var res = await _service.GetAllAsync();
             Assert.Single(res);
         }

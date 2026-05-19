@@ -22,20 +22,20 @@ namespace Airline1.Tests.Services
         [Fact]
         public async Task GetAllAsync_ReturnsMappedList()
         {
-            var list = new List<Passenger> { new Passenger { Id = 1, FirstName = "A", LastName = "B", DateOfBirth = DateTime.Now } };
+            var list = new List<Passenger> { new Passenger { Id = "1", FirstName = "A", LastName = "B", DateOfBirth = DateTime.Now } };
             _mockRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(list);
             var res = await _service.GetAllAsync();
             Assert.Single(res);
-            Assert.Equal(1, res.First().Id);
+            Assert.Equal("1", res.First().Id);
         }
 
         [Fact]
         public async Task CreateAsync_ReturnsCreated()
         {
             var req = new CreatePassengerRequest { FirstName = "A", LastName = "B" };
-            _mockRepo.Setup(r => r.AddAsync(It.IsAny<Passenger>())).ReturnsAsync(new Passenger { DateOfBirth = DateTime.Now,Id = 2, FirstName = "A", LastName = "B" });
+            _mockRepo.Setup(r => r.AddAsync(It.IsAny<Passenger>())).ReturnsAsync(new Passenger { DateOfBirth = DateTime.Now, Id = "2", FirstName = "A", LastName = "B" });
             var res = await _service.CreateAsync(req);
-            Assert.Equal(2, res.Id);
+            Assert.Equal("2", res.Id);
         }
     }
 }
