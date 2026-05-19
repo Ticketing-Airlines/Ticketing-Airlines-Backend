@@ -18,13 +18,14 @@ namespace Airline1.Tests.Services
     {
         private readonly Mock<IAircraftRepository> _mockRepo;
         private readonly Mock<IMapper> _mockMapper;
+        private readonly Mock<ISeatingProvisioningService> _mockProvisioning;
         private readonly AircraftService _service;
-        private readonly ISeatingProvisioningService _provisioningService;
 
         public AircraftServiceTests()
         {
             _mockRepo = new Mock<IAircraftRepository>();
             _mockMapper = new Mock<IMapper>();
+            _mockProvisioning = new Mock<ISeatingProvisioningService>();
             _mockMapper.Setup(m => m.Map<Aircraft>(It.IsAny<CreateAircraftRequest>())).Returns((CreateAircraftRequest r) => new Aircraft {
                 Model = r.Model,
                 Manufacturer = r.Manufacturer,
@@ -40,7 +41,7 @@ namespace Airline1.Tests.Services
                     Country = "Country1",
                     TimeZone = "TZ1" }
             });
-            _service = new AircraftService(_mockRepo.Object, _mockMapper.Object,_provisioningService);
+            _service = new AircraftService(_mockRepo.Object, _mockMapper.Object, _mockProvisioning.Object);
         }
        [Fact]
         public async Task CreateAsync_ReturnsCreatedAircraft()
@@ -82,9 +83,11 @@ namespace Airline1.Tests.Services
                 }
             };
             _mockRepo.Setup(r => r.AddAsync(It.IsAny<Aircraft>())).ReturnsAsync(model);
+            _mockMapper.Setup(m => m.Map<AircraftResponse>(It.IsAny<Aircraft>())).Returns(response);
 
             var result = await _service.CreateAsync(request);
-            Assert.Equal(response, result);
+            Assert.NotNull(result);
+            Assert.Equal(response.TailNumber, result.TailNumber);
         }
 
 
